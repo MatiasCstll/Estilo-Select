@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estilo Select — Boutique de Moda · Paso de los Libres</title>
+  <meta name="description" content="Estilo Select — Boutique de moda femenina en Paso de los Libres, Corrientes. Remeras, polleras, pantalones, vestidos, buzos y accesorios. Comprá online y pagá con Mercado Pago.">
+  <meta property="og:title" content="Estilo Select — Boutique de Moda">
+  <meta property="og:description" content="Elegancia que te define. Comprá online o visitanos en Paso de los Libres.">
+  <meta property="og:image" content="logo.jpg">
+  <meta name="theme-color" content="#f7f2e8">
+  <link rel="icon" href="favicon.png">
+  <!-- ?v=2 → cada vez que subas cambios, sumale 1 (así el navegador baja la versión nueva) -->
+  <link rel="stylesheet" href="styles.css?v=2">
+</head>
+<body>
+
+<!-- ─── FRANJAS SUPERIORES ────────────────────────────────────── -->
+<div class="promo-bar" id="promoBar"></div>
+<div class="demo-bar hidden" id="demoBar">Modo demo: los datos se guardan solo en este navegador. Conectá Firebase para usarla de verdad.</div>
+
+<!-- ─── HEADER ───────────────────────────────────────────────── -->
+<header id="header">
+  <div class="container container-xl">
+    <div class="header-inner">
+      <a href="#/" class="logo-wrap" aria-label="Estilo Select - Inicio">
+        <img class="logo-img" src="logo.jpg" alt="Estilo Select">
+        <span class="logo-text">Estilo<br>Select</span>
+      </a>
+      <nav class="main-nav" id="mainNav" aria-label="Navegación principal"></nav>
+      <div class="header-actions">
+        <a class="btn-admin hidden" id="btnAdmin" href="admin.html">⚙ Admin</a>
+        <button class="icon-btn" onclick="abrirCuenta()" aria-label="Mi cuenta">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="icon-btn-label" id="cuentaLabel">Ingresar</span>
+        </button>
+        <a class="icon-btn" href="#/favoritos" aria-label="Favoritos">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </a>
+        <button class="cart-btn" onclick="toggleCarrito()" aria-label="Ver carrito">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="hamburger" onclick="toggleMenu()" aria-label="Menú"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ─── MENÚ MOBILE ───────────────────────────────────────────── -->
+<div class="mobile-menu" id="mobileMenu"></div>
+
+<!-- ═══════════════ VISTA: INICIO ═══════════════ -->
+<main id="vistaInicio" class="vista">
+
+  <!-- Portada -->
+  <section class="hero2">
+    <div class="hero2-deco" aria-hidden="true">ES</div>
+    <div class="container container-xl hero2-grid">
+      <div class="hero2-texto">
+        <div class="hero-tag" id="heroTag"></div>
+        <h1><span id="heroTitulo"></span><br><em id="heroTitulo2"></em></h1>
+        <p id="heroTexto"></p>
+        <div class="hero-btns">
+          <a href="#/todo" class="btn-primary btn-lg">Ver la colección</a>
+          <a href="#/visitanos" class="btn-secondary btn-lg">Visitanos</a>
+        </div>
+        <div class="hero-perks">
+          <span>🚚 Envíos a todo el país</span>
+          <span>💳 Mercado Pago</span>
+          <span>🏬 Retiro en el local</span>
+        </div>
+      </div>
+      <div class="hero2-fotos" id="heroFotos"></div>
+    </div>
+  </section>
+
+  <!-- Cinta animada -->
+  <div class="cinta" aria-hidden="true"><div class="cinta-track" id="cinta"></div></div>
+
+  <!-- Categorías -->
+  <section class="seccion">
+    <div class="container container-xl">
+      <div class="section-header">
+        <h2><span>Elegí tu estilo</span>Comprá por categoría</h2>
+        <div class="ornamento"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div>
+      </div>
+      <div class="cat-tiles" id="catTiles"></div>
+    </div>
+  </section>
+
+  <!-- Novedades -->
+  <section class="seccion seccion-verde">
+    <div class="container container-xl">
+      <div class="seccion-titulo-fila">
+        <h2 class="titulo-seccion"><span>Recién llegados</span>Novedades</h2>
+        <a href="#/novedades" class="link-ver-todo">Ver todo →</a>
+      </div>
+      <div class="productos-grid" id="gridNovedades"></div>
+    </div>
+  </section>
+
+  <!-- Ofertas -->
+  <section class="seccion hidden" id="seccionOfertas">
+    <div class="container container-xl">
+      <div class="seccion-titulo-fila">
+        <h2 class="titulo-seccion"><span>Aprovechá</span>Ofertas</h2>
+        <a href="#/ofertas" class="link-ver-todo">Ver todas →</a>
+      </div>
+      <div class="productos-grid" id="gridOfertas"></div>
+    </div>
+  </section>
+
+  <!-- Nosotros -->
+  <section class="section-about" id="nosotros">
+    <div class="container container-xl">
+      <div class="about-grid">
+        <div class="about-img-wrap">
+          <div class="about-img-deco"></div>
+          <div id="nosotrosFoto"><div class="about-placeholder">ES</div></div>
+        </div>
+        <div class="about-content">
+          <div class="hero-tag">Nuestra historia</div>
+          <h2 id="nosotrosTitulo"></h2>
+          <div id="nosotrosTexto"></div>
+          <div class="about-stats">
+            <div class="stat"><h4 id="statProductos">+200</h4><p>Prendas seleccionadas</p></div>
+            <div class="stat"><h4 id="statCategorias">6</h4><p>Categorías</p></div>
+            <div class="stat"><h4>❤️</h4><p>Atención personalizada</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Visitanos: horarios + mapa -->
+  <section class="section-visitanos" id="visitanos">
+    <div class="container container-xl">
+      <div class="section-header">
+        <h2><span>Te esperamos</span>Visitanos en el local</h2>
+        <div class="ornamento"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div>
+      </div>
+      <div class="visitanos-grid">
+        <div class="visitanos-card">
+          <img class="logo-small" src="logo.jpg" alt="">
+          <div class="visit-bloque">
+            <div class="visit-icono">📍</div>
+            <div><h3 id="visDireccion"></h3><p id="visCiudad"></p><p class="visit-ref" id="visReferencia"></p></div>
+          </div>
+          <div class="horarios-divider"></div>
+          <div class="visit-bloque">
+            <div class="visit-icono">🕐</div>
+            <div id="visHorarios"></div>
+          </div>
+          <div class="horarios-divider"></div>
+          <div class="visit-botones">
+            <a class="btn-primary" id="btnComoLlegar" href="#" target="_blank" rel="noopener">Cómo llegar</a>
+            <a class="btn-secondary js-wa-link" href="#" target="_blank" rel="noopener">Escribinos</a>
+          </div>
+        </div>
+        <div class="mapa-wrap">
+          <iframe id="mapaFrame" title="Mapa del local de Estilo Select" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          <a class="mapa-abrir" id="mapaAbrir" href="#" target="_blank" rel="noopener">Abrir en Google Maps ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ═══════════════ VISTA: LISTA (categoría / todo / ofertas) ═══════════════ -->
+<main id="vistaLista" class="vista hidden">
+  <section class="pagina-banner" id="listaBanner">
+    <div class="container container-xl">
+      <div class="migas"><a href="#/">Inicio</a> <span>/</span> <span id="listaMiga"></span></div>
+      <h1><span id="listaSub">Colección</span><b id="listaTitulo"></b></h1>
+      <p id="listaCuenta"></p>
+    </div>
+  </section>
+  <div class="lista-cats">
+    <div class="container container-xl"><div class="cats-scroll" id="catPills" role="tablist"></div></div>
+  </div>
+  <section class="section-catalogo">
+    <div class="container container-xl">
+      <div class="catalogo-toolbar">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="buscador" placeholder="Buscar prendas..." autocomplete="off">
+        </div>
+        <div class="toolbar-right">
+          <label class="chk-ofertas"><input type="checkbox" id="soloOfertas"> Solo ofertas</label>
+          <select class="form-select select-orden" id="orden" aria-label="Ordenar">
+            <option value="relevancia">Destacados</option>
+            <option value="nuevos">Más nuevos</option>
+            <option value="menor">Menor precio</option>
+            <option value="mayor">Mayor precio</option>
+            <option value="az">A → Z</option>
+          </select>
+        </div>
+      </div>
+      <div class="filtros-extra" id="filtrosExtra"></div>
+      <div class="productos-grid productos-grid-lg" id="productosGrid" role="list"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ─── FOOTER ────────────────────────────────────────────────── -->
+<footer>
+  <div class="container container-xl">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="logo.jpg" alt="Estilo Select" style="height:56px;border-radius:8px;">
+        <div class="logo-text-footer">ESTILO SELECT</div>
+        <p>Boutique de moda femenina en <span class="js-ubicacion"></span>. Elegancia, calidad y estilo en cada prenda.</p>
+        <div class="social-links" style="margin-top:1.25rem;">
+          <a href="#" class="social-link js-ig-link" aria-label="Instagram" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" class="social-link js-wa-link" aria-label="WhatsApp" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+          <a href="#" class="social-link js-fb-link" aria-label="Facebook" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col"><h4>Categorías</h4><ul id="footerCats"></ul></div>
+      <div class="footer-col">
+        <h4>Ayuda</h4>
+        <ul>
+          <li><a href="#" onclick="abrirCuenta();return false">Mi cuenta y pedidos</a></li>
+          <li><a href="#" onclick="abrirInfo('envios');return false">Envíos</a></li>
+          <li><a href="#" onclick="abrirInfo('cambios');return false">Cambios y devoluciones</a></li>
+          <li><a href="#" onclick="abrirInfo('pagos');return false">Medios de pago</a></li>
+          <li><a href="#" class="js-wa-link" target="_blank" rel="noopener">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>El local</h4>
+        <ul>
+          <li class="footer-txt" id="footerDireccion"></li>
+          <li id="footerHorarios"></li>
+          <li><a href="#/visitanos">Ver mapa →</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Estilo Select. Todos los derechos reservados.</span>
+      <span class="js-ubicacion"></span>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp flotante -->
+<a class="wa-fab js-wa-link hidden" id="waFab" href="#" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg>
+</a>
+
+<!-- ─── MODAL DETALLE DE PRODUCTO ─────────────────────────────── -->
+<div class="modal-overlay" id="modalProducto" role="dialog" aria-modal="true">
+  <div class="modal modal-xl">
+    <button class="modal-close modal-close-float" onclick="cerrarProducto()" aria-label="Cerrar">✕</button>
+    <div class="pd-grid" id="pdContenido"></div>
+  </div>
+</div>
+
+<!-- ─── MODAL LOGIN / REGISTRO ────────────────────────────────── -->
+<div class="modal-overlay" id="modalAuth" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 id="authTitulo">Ingresar</h3>
+      <button class="modal-close" onclick="cerrar('modalAuth')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <button class="tab active" data-tab="login" onclick="authTab('login')">Ingresar</button>
+        <button class="tab" data-tab="registro" onclick="authTab('registro')">Crear cuenta</button>
+      </div>
+      <form id="authForm" novalidate>
+        <div class="form-group solo-registro hidden">
+          <label class="form-label" for="aNombre">Nombre y apellido</label>
+          <input class="form-input" id="aNombre" type="text" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="aEmail">Email</label>
+          <input class="form-input" id="aEmail" type="email" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="aPass">Contraseña</label>
+          <input class="form-input" id="aPass" type="password" autocomplete="current-password" required minlength="6">
+        </div>
+        <div class="form-error hidden" id="authError"></div>
+        <button type="submit" class="btn-form-submit w-100" id="authSubmit">Ingresar</button>
+        <button type="button" class="link-btn solo-login" onclick="recuperarPass()">¿Olvidaste tu contraseña?</button>
+        <div class="divider-o"><span>o</span></div>
+        <button type="button" class="btn-google" onclick="loginGoogle()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+          Continuar con Google
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL MI CUENTA ───────────────────────────────────────── -->
+<div class="modal-overlay" id="modalCuenta" role="dialog" aria-modal="true">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Hola, <span id="cuentaNombre"></span> ✨</h3>
+      <button class="modal-close" onclick="cerrar('modalCuenta')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <button class="tab active" data-ctab="pedidos" onclick="cuentaTab('pedidos')">Mis pedidos</button>
+        <button class="tab" data-ctab="favoritos" onclick="cuentaTab('favoritos')">Favoritos</button>
+      </div>
+      <div id="cuentaContenido"></div>
+      <div class="cuenta-footer">
+        <span class="texto-suave" id="cuentaEmail"></span>
+        <button class="btn-form-cancel" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL CHECKOUT ────────────────────────────────────────── -->
+<div class="modal-overlay" id="modalCheckout" role="dialog" aria-modal="true">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <h3>Finalizar compra</h3>
+      <button class="modal-close" onclick="cerrar('modalCheckout')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="checkoutForm" class="checkout-grid" novalidate>
+        <div>
+          <h4 class="co-titulo"><span>1</span> Tus datos</h4>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="coNombre">Nombre y apellido *</label><input class="form-input" id="coNombre" required autocomplete="name"></div>
+            <div class="form-group"><label class="form-label" for="coTel">WhatsApp / Teléfono *</label><input class="form-input" id="coTel" type="tel" required autocomplete="tel" placeholder="Ej: 3772 55 1234"></div>
+          </div>
+          <div class="form-group"><label class="form-label" for="coEmail">Email *</label><input class="form-input" id="coEmail" type="email" required autocomplete="email"></div>
+
+          <h4 class="co-titulo"><span>2</span> Entrega</h4>
+          <div class="opciones" id="coEntregaOpciones"></div>
+          <div id="coDireccion" class="hidden">
+            <div class="form-group"><label class="form-label" for="coCalle">Calle y número *</label><input class="form-input" id="coCalle" autocomplete="street-address"></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label" for="coCiudad">Ciudad / Provincia *</label><input class="form-input" id="coCiudad" autocomplete="address-level2"></div>
+              <div class="form-group"><label class="form-label" for="coCP">Código postal *</label><input class="form-input" id="coCP" autocomplete="postal-code"></div>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label" for="coNotas">Notas (opcional)</label><textarea class="form-textarea" id="coNotas" rows="2" placeholder="Piso, depto, horario, regalo..."></textarea></div>
+
+          <h4 class="co-titulo"><span>3</span> Pago</h4>
+          <div class="opciones" id="coPagoOpciones"></div>
+        </div>
+
+        <aside class="co-resumen">
+          <h4>Resumen</h4>
+          <div id="coItems"></div>
+          <div class="co-linea"><span>Subtotal</span><span id="coSubtotal"></span></div>
+          <div class="co-linea"><span>Envío</span><span id="coEnvio"></span></div>
+          <div class="co-linea co-total"><span>Total</span><span id="coTotal"></span></div>
+          <div class="form-error hidden" id="coError"></div>
+          <button type="submit" class="btn-form-submit w-100" id="coSubmit">Confirmar y pagar</button>
+          <p class="co-seguro">🔒 El pago se hace en Mercado Pago. Nunca vemos los datos de tu tarjeta.</p>
+        </aside>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL RESULTADO / INFO ────────────────────────────────── -->
+<div class="modal-overlay" id="modalInfo" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 id="infoTitulo"></h3>
+      <button class="modal-close" onclick="cerrar('modalInfo')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="infoCuerpo"></div>
+  </div>
+</div>
+
+<!-- ─── CARRITO SIDEBAR ───────────────────────────────────────── -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCarrito()"></div>
+<div class="cart-sidebar" id="cartSidebar" role="dialog" aria-label="Carrito de compras">
+  <div class="cart-sidebar-header">
+    <h3>Tu carrito 🛍️</h3>
+    <button class="modal-close" onclick="toggleCarrito()" aria-label="Cerrar carrito">✕</button>
+  </div>
+  <div class="cart-envio-progreso" id="cartEnvioProgreso"></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Subtotal</span><span id="cartTotal">$&nbsp;0</span></div>
+    <button class="btn-form-submit w-100" id="btnCheckout" onclick="irAlCheckout()">Finalizar compra</button>
+    <button class="link-btn w-100" onclick="toggleCarrito()">Seguir comprando</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- Firebase (si no está configurado en js/config.js, la tienda usa el modo demo) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/config.js?v=2"></script>
+<script src="js/data.js?v=2"></script>
+<script src="js/tienda.js?v=2"></script>
+</body>
+</html>

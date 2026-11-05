@@ -1,0 +1,9 @@
+{
+  "name": "estilo-select-tienda",
+  "private": true,
+  "description": "Tienda online de Estilo Select: página estática + funciones de pago en Vercel",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}

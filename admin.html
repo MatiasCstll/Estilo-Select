@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin — Estilo Select</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="admin.css?v=2">
+</head>
+<body class="admin-body">
+
+<div class="demo-bar hidden" id="demoBar">Modo demo: los datos se guardan solo en este navegador.</div>
+
+<header class="adm-header">
+  <div class="container container-xl adm-header-inner">
+    <a href="index.html" class="adm-logo"><img src="logo.jpg" alt=""> <span>Panel Admin</span></a>
+    <nav class="adm-tabs hidden" id="admTabs">
+      <button data-v="resumen" class="on">🏠 Inicio</button>
+      <button data-v="productos">👗 Productos</button>
+      <button data-v="pedidos">📦 Pedidos <span class="adm-badge hidden" id="badgePendientes"></span></button>
+      <button data-v="pagina">✨ Mi página</button>
+      <button data-v="ajustes">🚚 Envíos y pagos</button>
+    </nav>
+    <div class="adm-user"><span id="admUser"></span> <a href="index.html" target="_blank" class="btn-admin">Ver tienda ↗</a></div>
+  </div>
+</header>
+
+<main class="container container-xl adm-main">
+
+  <!-- Acceso -->
+  <section id="vLogin" class="adm-login hidden">
+    <div class="horarios-card">
+      <img class="logo-small" src="logo.jpg" alt="">
+      <h2>Panel Admin</h2>
+      <p class="texto-suave" id="loginMsg">Ingresá con tu cuenta de administradora.</p>
+      <form id="admLoginForm" style="text-align:left;margin-top:1.5rem">
+        <div class="form-group"><label class="form-label" for="lEmail">Email</label><input class="form-input" id="lEmail" type="email" autocomplete="email"></div>
+        <div class="form-group"><label class="form-label" for="lPass">Contraseña</label><input class="form-input" id="lPass" type="password" autocomplete="current-password"></div>
+        <div class="form-error hidden" id="lError"></div>
+        <button class="btn-form-submit w-100">Ingresar</button>
+        <p class="texto-suave demo-only hidden" style="font-size:.78rem;margin-top:1rem">En modo demo, cualquier cuenta creada en la tienda entra como admin. Si no tenés, <a class="link-dorado" href="index.html">creala en la tienda</a>.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Inicio del panel -->
+  <section id="vResumen" class="adm-vista hidden">
+    <h1 class="adm-h1">¡Hola! ¿Qué querés hacer hoy?</h1>
+    <div class="adm-atajos">
+      <button class="atajo" onclick="editarProducto()"><span>➕</span><b>Agregar un producto</b><small>Subí fotos, precio y talles</small></button>
+      <button class="atajo" onclick="mostrar('pedidos')"><span>📦</span><b>Ver pedidos</b><small id="atajoPedidos">Lo que te compraron</small></button>
+      <button class="atajo" onclick="mostrar('pagina')"><span>✨</span><b>Cambiar mi página</b><small>Fotos, textos, horarios, mapa</small></button>
+      <button class="atajo" onclick="mostrar('productos')"><span>👗</span><b>Mis productos</b><small>Editar precios y stock</small></button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="adm-2col">
+      <div class="adm-card"><h3>Últimos pedidos</h3><div id="resUltimos"></div></div>
+      <div class="adm-card"><h3>Se están por agotar</h3><div id="resStock"></div></div>
+    </div>
+  </section>
+
+  <!-- Pedidos -->
+  <section id="vPedidos" class="adm-vista hidden">
+    <div class="adm-titulo-fila">
+      <h1 class="adm-h1">Pedidos</h1>
+      <div class="adm-filtros">
+        <input class="form-input" id="pedBuscar" type="search" placeholder="Buscar por cliente, email o número">
+        <select class="form-select" id="pedEstado"><option value="">Todos los estados</option></select>
+      </div>
+    </div>
+    <div class="adm-tabla-wrap"><table class="adm-tabla" id="tablaPedidos"></table></div>
+  </section>
+
+  <!-- Productos -->
+  <section id="vProductos" class="adm-vista hidden">
+    <div class="adm-titulo-fila">
+      <h1 class="adm-h1">Productos</h1>
+      <div class="adm-filtros">
+        <input class="form-input" id="prodBuscar" type="search" placeholder="Buscar producto">
+        <select class="form-select" id="prodCat"><option value="">Todas las categorías</option></select>
+        <button class="btn-primary" onclick="editarProducto()">➕ Agregar producto</button>
+      </div>
+    </div>
+    <div class="adm-prod-lista" id="listaProductos"></div>
+  </section>
+
+  <!-- Mi página -->
+  <section id="vPagina" class="adm-vista hidden">
+    <div class="adm-titulo-fila">
+      <h1 class="adm-h1">Mi página</h1>
+      <a class="btn-secondary" href="index.html" target="_blank">Ver cómo queda ↗</a>
+    </div>
+    <p class="adm-ayuda">Acá cambiás todo lo que se ve en la tienda. Las <b>fotos</b> se guardan apenas las subís. Los <b>textos</b> se guardan con el botón dorado de abajo.</p>
+
+    <div class="adm-card adm-bloque">
+      <h3>🖼️ Portada (lo primero que se ve)</h3>
+      <div class="adm-fotos-pagina" id="fotosHero"></div>
+      <p class="form-hint">Hasta 3 fotos. Quedan lindas fotos verticales de las prendas o del local.</p>
+      <div class="form-group" style="margin-top:1rem"><label class="form-label" for="pHeroTag">Frase chiquita de arriba</label><input class="form-input" id="pHeroTag" placeholder="Nueva colección 2026"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="pHeroTitulo">Título</label><input class="form-input" id="pHeroTitulo" placeholder="Elegancia que"></div>
+        <div class="form-group"><label class="form-label" for="pHeroTitulo2">Título en dorado (cursiva)</label><input class="form-input" id="pHeroTitulo2" placeholder="te define"></div>
+      </div>
+      <div class="form-group"><label class="form-label" for="pHeroTexto">Texto</label><textarea class="form-textarea" id="pHeroTexto" rows="2"></textarea></div>
+      <div class="form-group"><label class="form-label" for="pBanner">Franja oscura de arriba de todo</label><input class="form-input" id="pBanner" placeholder="Envío gratis desde $80.000 · 3 cuotas sin interés"><div class="form-hint">Dejala vacía para ocultarla</div></div>
+    </div>
+
+    <div class="adm-card adm-bloque">
+      <h3>🗂️ Categorías (cada una tiene su página)</h3>
+      <p class="form-hint" style="margin-bottom:1rem">Podés agregar, cambiar el nombre, el dibujito, la foto y el orden. La foto se ve en el inicio y arriba de la página de la categoría.</p>
+      <div id="listaCategorias" class="adm-cats"></div>
+      <button type="button" class="btn-form-cancel" onclick="agregarCategoria()">➕ Agregar categoría</button>
+    </div>
+
+    <div class="adm-card adm-bloque">
+      <h3>📍 Visitanos (dirección, horarios y mapa)</h3>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="pDireccion">Dirección</label><input class="form-input" id="pDireccion" placeholder="Maestro Llanes y Hipólito Yrigoyen"></div>
+        <div class="form-group"><label class="form-label" for="pUbicacion">Ciudad</label><input class="form-input" id="pUbicacion" placeholder="Paso de los Libres, Corrientes"></div>
+      </div>
+      <div class="form-group"><label class="form-label" for="pReferencia">Cómo reconocer el local</label><input class="form-input" id="pReferencia" placeholder="Local en esquina, con un ventanal grande"></div>
+      <label class="form-label">Horarios</label>
+      <div id="listaHorarios" class="adm-horarios"></div>
+      <button type="button" class="link-btn" style="margin:0 0 1.25rem" onclick="agregarHorario()">➕ Agregar horario</button>
+      <div class="form-group">
+        <label class="form-label" for="pMapa">Ubicación en el mapa</label>
+        <div style="display:flex;gap:.5rem"><input class="form-input" id="pMapa"><button type="button" class="btn-form-cancel" onclick="previsualizarMapa()">Ver</button></div>
+        <div class="form-hint">Si el pin no cae justo en el local: abrí Google Maps en el celu, mantené apretado sobre el local, copiá los números que aparecen (ej: -29.71, -57.08) y pegalos acá.</div>
+      </div>
+      <div class="adm-mapa"><iframe id="pMapaFrame" title="Vista previa del mapa" loading="lazy"></iframe></div>
+    </div>
+
+    <div class="adm-card adm-bloque">
+      <h3>💛 Nosotros</h3>
+      <div class="adm-2col">
+        <div>
+          <div class="form-group"><label class="form-label" for="pNosTitulo">Título</label><input class="form-input" id="pNosTitulo"></div>
+          <div class="form-group"><label class="form-label" for="pNosTexto">Texto</label><textarea class="form-textarea" id="pNosTexto" rows="6"></textarea><div class="form-hint">Dejá una línea vacía para separar párrafos</div></div>
+        </div>
+        <div><label class="form-label">Foto</label><div class="adm-fotos-pagina" id="fotoNosotros"></div></div>
+      </div>
+    </div>
+
+    <div class="adm-card adm-bloque">
+      <h3>📱 Contacto y redes</h3>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="pWhatsapp">WhatsApp de la tienda</label><input class="form-input" id="pWhatsapp" placeholder="3772 55 1234"><div class="form-hint">Poné el número como lo marcás normalmente; nosotros le agregamos el +54 9</div></div>
+        <div class="form-group"><label class="form-label" for="pInstagram">Instagram</label><input class="form-input" id="pInstagram" placeholder="estiloselect"></div>
+      </div>
+      <div class="form-group"><label class="form-label" for="pFacebook">Facebook (link)</label><input class="form-input" id="pFacebook" placeholder="https://facebook.com/..."></div>
+    </div>
+
+    <div class="adm-guardar-barra"><span id="paginaEstado" class="texto-suave"></span><button class="btn-form-submit" onclick="guardarPagina()">💾 Guardar cambios</button></div>
+  </section>
+
+  <!-- Envíos y pagos -->
+  <section id="vAjustes" class="adm-vista hidden">
+    <h1 class="adm-h1">Envíos y pagos</h1>
+    <form id="ajustesForm" class="adm-card adm-ajustes">
+      <h3>🚚 Envíos</h3>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="cCostoEnvio">Costo de envío ($)</label><input class="form-input" id="cCostoEnvio" type="number" min="0"></div>
+        <div class="form-group"><label class="form-label" for="cGratisDesde">Envío gratis desde ($)</label><input class="form-input" id="cGratisDesde" type="number" min="0"><div class="form-hint">0 = nunca gratis</div></div>
+      </div>
+      <label class="adm-check"><input type="checkbox" id="cRetiro"> Permitir retiro en el local</label>
+      <h3>💳 Pagos</h3>
+      <label class="adm-check"><input type="checkbox" id="cMP"> Mercado Pago</label>
+      <label class="adm-check"><input type="checkbox" id="cTransf"> Transferencia / efectivo (se coordina por WhatsApp)</label>
+      <div class="form-row" style="margin-top:1rem">
+        <div class="form-group"><label class="form-label" for="cAlias">Alias para transferencias</label><input class="form-input" id="cAlias"></div>
+        <div class="form-group"><label class="form-label" for="cCuotas">Cuotas sin interés a mostrar</label><input class="form-input" id="cCuotas" type="number" min="0" max="12"><div class="form-hint">Tenés que activarlas también en tu cuenta de Mercado Pago</div></div>
+      </div>
+      <div class="form-actions"><button class="btn-form-submit">💾 Guardar</button></div>
+    </form>
+  </section>
+</main>
+
+<!-- Modal producto (fácil, por pasos) -->
+<div class="modal-overlay" id="modalProd" role="dialog" aria-modal="true">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <h3 id="prodTitulo">Agregar producto</h3>
+      <button class="modal-close" onclick="cerrarModal('modalProd')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="prodForm" novalidate>
+        <div class="paso">
+          <div class="paso-num">1</div>
+          <div class="paso-cuerpo">
+            <h4>Fotos</h4>
+            <label class="adm-drop" id="dropFotos">
+              <input type="file" id="fArchivos" accept="image/*" multiple hidden>
+              <span>📷</span><b>Tocá acá para subir fotos</b><small>o arrastralas. Hasta 5. La primera es la que se ve en el catálogo.</small>
+            </label>
+            <div class="adm-fotos" id="fFotos"></div>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">2</div>
+          <div class="paso-cuerpo">
+            <h4>¿Qué es y cuánto sale?</h4>
+            <div class="form-group"><label class="form-label" for="fNombre">Nombre *</label><input class="form-input form-input-lg" id="fNombre" required placeholder="Ej: Remera de lino con lazo"></div>
+            <label class="form-label">Categoría *</label>
+            <div class="chips-elegir" id="fCategorias"></div>
+            <div class="form-row" style="margin-top:1rem">
+              <div class="form-group"><label class="form-label" for="fPrecio">Precio *</label><div class="input-pesos"><span>$</span><input class="form-input form-input-lg" id="fPrecio" type="number" min="0" inputmode="numeric" required placeholder="15000"></div></div>
+              <div class="form-group"><label class="form-label" for="fPrecioAnt">¿Está en oferta? Precio de antes</label><div class="input-pesos"><span>$</span><input class="form-input form-input-lg" id="fPrecioAnt" type="number" min="0" inputmode="numeric" placeholder="(opcional)"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">3</div>
+          <div class="paso-cuerpo">
+            <h4>Colores <small>(tocá los que tenés)</small></h4>
+            <div class="paleta" id="fPaleta"></div>
+            <div class="color-otro">
+              <input type="color" id="fOtroHex" value="#c4dbd3"><input class="form-input" id="fOtroNombre" placeholder="¿Otro color? Escribí el nombre">
+              <button type="button" class="btn-form-cancel" onclick="agregarColorOtro()">Agregar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">4</div>
+          <div class="paso-cuerpo">
+            <h4>Talles <small>(tocá los que tenés)</small></h4>
+            <div class="talles-grupo"><span>Letras</span><div class="chips-elegir" id="fTallesLetras"></div></div>
+            <div class="talles-grupo"><span>Números</span><div class="chips-elegir" id="fTallesNumeros"></div></div>
+            <div class="talles-grupo"><span>Otros</span><div class="chips-elegir" id="fTallesOtros"></div>
+              <input class="form-input form-input-sm" id="fTalleNuevo" placeholder="+ otro talle y Enter"></div>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">5</div>
+          <div class="paso-cuerpo">
+            <h4>¿Cuántas unidades tenés?</h4>
+            <div class="opciones opciones-fila">
+              <label class="opcion" id="optStockSimple"><input type="radio" name="modoStock" value="simple" onchange="cambiarModoStock('simple')"><div><b>Las mismas de cada uno</b><span>Ej: 3 de cada color y talle</span></div></label>
+              <label class="opcion" id="optStockDetalle"><input type="radio" name="modoStock" value="detalle" onchange="cambiarModoStock('detalle')"><div><b>Quiero detallar</b><span>Distinto por color y talle</span></div></label>
+            </div>
+            <div id="stockSimple" class="stock-simple">
+              <button type="button" onclick="pasoStock(-1)">−</button><input type="number" id="fStockSimple" min="0" value="3" inputmode="numeric"><button type="button" onclick="pasoStock(1)">+</button>
+              <span class="texto-suave" id="stockSimpleTxt"></span>
+            </div>
+            <div class="adm-stock hidden" id="fStock"></div>
+          </div>
+        </div>
+
+        <div class="paso">
+          <div class="paso-num">6</div>
+          <div class="paso-cuerpo">
+            <h4>Últimos detalles <small>(opcional)</small></h4>
+            <div class="form-group"><label class="form-label" for="fDescripcion">Descripción</label><textarea class="form-textarea" id="fDescripcion" rows="3" placeholder="Tela, calce, cómo combinarla..."></textarea></div>
+            <div class="toggles">
+              <label class="toggle"><input type="checkbox" id="fActivo" checked><i></i> Se ve en la tienda</label>
+              <label class="toggle"><input type="checkbox" id="fNuevo"><i></i> Marcar como "Nuevo"</label>
+              <label class="toggle"><input type="checkbox" id="fDestacado"><i></i> Mostrar primero</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-error hidden" id="prodError"></div>
+        <div class="form-actions form-actions-sticky">
+          <button type="button" class="btn-form-cancel" onclick="cerrarModal('modalProd')">Cancelar</button>
+          <button type="submit" class="btn-form-submit" id="prodGuardar">💾 Guardar producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pedido -->
+<div class="modal-overlay" id="modalPed" role="dialog" aria-modal="true">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="pedTitulo">Pedido</h3>
+      <button class="modal-close" onclick="cerrarModal('modalPed')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="pedCuerpo"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/config.js?v=2"></script>
+<script src="js/data.js?v=2"></script>
+<script src="js/admin.js?v=2"></script>
+</body>
+</html>
