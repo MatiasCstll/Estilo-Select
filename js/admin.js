@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
   $('pedEstado').innerHTML += Object.entries(ES.ESTADOS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
   ['prodBuscar', 'prodCat'].forEach(id => $(id).addEventListener('input', renderProductos));
   ['pedBuscar', 'pedEstado'].forEach(id => $(id).addEventListener('input', renderPedidos));
+  $('cliBuscar').addEventListener('input', renderClientes);
+  $('cuponForm').addEventListener('submit', crearCupon);
   $('admLoginForm').addEventListener('submit', loginAdmin);
   $('prodForm').addEventListener('submit', guardarProducto);
   $('ajustesForm').addEventListener('submit', guardarAjustes);
@@ -72,6 +74,7 @@ async function cargarTodo() {
   $('badgePendientes').classList.toggle('hidden', !pend);
   $('atajoPedidos').textContent = pend ? `¡${pend} para preparar!` : 'Lo que te compraron';
   $('prodCat').innerHTML = '<option value="">Todas las categorías</option>' + cats().map(c => `<option value="${c.key}">${esc(c.label)}</option>`).join('');
+  $('masCat').innerHTML = '<option value="">Todos los productos</option>' + cats().map(c => `<option value="${c.key}">${esc(c.label)}</option>`).join('');
 }
 
 function mostrar(v) {
@@ -81,7 +84,7 @@ function mostrar(v) {
   document.querySelectorAll('#admTabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   document.querySelectorAll('.adm-vista').forEach(s => s.classList.add('hidden'));
   $('v' + v[0].toUpperCase() + v.slice(1)).classList.remove('hidden');
-  ({ resumen: renderResumen, pedidos: renderPedidos, productos: renderProductos, pagina: renderPagina, ajustes: renderAjustes })[v]();
+  ({ resumen: renderResumen, pedidos: renderPedidos, productos: renderProductos, pagina: renderPagina, ajustes: renderAjustes, clientes: renderClientes, promos: renderCupones })[v]();
   window.scrollTo({ top: 0 });
 }
 
@@ -140,7 +143,7 @@ function verPedido(id) {
   const msg = encodeURIComponent(`¡Hola ${c.nombre || ''}! Te escribimos de Estilo Select por tu pedido #${numeroPedido(pd)}.`);
   // Control: total recalculado con los precios guardados en el pedido
   const sumaItems = (pd.items || []).reduce((s, it) => s + it.precio * it.cant, 0);
-  const alerta = Math.abs(sumaItems + (pd.envio || 0) - pd.total) > 1 ? '<div class="form-error">⚠ El total no coincide con la suma de los productos. Revisalo antes de despachar.</div>' : '';
+  const alerta = Math.abs(sumaItems - (pd.descuento || 0) + (pd.envio || 0) - pd.total) > 1 ? '<div class="form-error">⚠ El total no coincide con la suma de los productos. Revisalo antes de despachar.</div>' : '';
   $('pedTitulo').textContent = `Pedido #${numeroPedido(pd)}`;
   $('pedCuerpo').innerHTML = `
     ${alerta}
@@ -159,6 +162,7 @@ function verPedido(id) {
     <h4 class="adm-h4">Productos</h4>
     <table class="adm-tabla adm-tabla-sm"><tbody>
       ${(pd.items || []).map(it => `<tr><td>${it.cant}×</td><td>${esc(it.nombre)}<br><small class="texto-suave">${it.color ? esc(it.color) + ' · ' : ''}${esc(it.talle)}</small></td><td style="text-align:right">${$p(it.precio * it.cant)}</td></tr>`).join('')}
+      ${pd.descuento ? `<tr><td></td><td>Cupón ${esc(pd.cupon || '')}</td><td style="text-align:right">− ${$p(pd.descuento)}</td></tr>` : ''}
       <tr><td></td><td>Envío</td><td style="text-align:right">${pd.envio ? $p(pd.envio) : 'Gratis'}</td></tr>
       <tr><td></td><td><b>Total</b></td><td style="text-align:right"><b>${$p(pd.total)}</b></td></tr>
     </tbody></table>
@@ -189,6 +193,7 @@ async function guardarSeguimiento(id) {
 
 // ── Productos: lista con fotos grandes ─────────────────────────
 function renderProductos() {
+  if (rapida) renderRapida();
   const q = $('prodBuscar').value.trim().toLowerCase();
   const cat = $('prodCat').value;
   const l = productos.filter(p => (!cat || p.categoria === cat) && (!q || p.nombre.toLowerCase().includes(q)))
@@ -413,14 +418,14 @@ async function borrarProducto(id) {
 // ── Mi página: textos, fotos, categorías, horarios, mapa ───────
 let paginaSucia = false;
 let borrador = null;
-const CAMPOS_PAGINA = { pHeroTag: 'heroTag', pHeroTitulo: 'heroTitulo', pHeroTitulo2: 'heroTitulo2', pHeroTexto: 'heroTexto', pBanner: 'bannerTexto', pDireccion: 'direccion', pUbicacion: 'ubicacion', pReferencia: 'referencia', pMapa: 'mapa', pNosTitulo: 'nosotrosTitulo', pNosTexto: 'nosotrosTexto', pInstagram: 'instagram', pFacebook: 'facebook' };
+const CAMPOS_PAGINA = { pHeroTag: 'heroTag', pHeroTitulo: 'heroTitulo', pHeroTitulo2: 'heroTitulo2', pHeroTexto: 'heroTexto', pBanner: 'bannerTexto', pDireccion: 'direccion', pUbicacion: 'ubicacion', pReferencia: 'referencia', pMapa: 'mapa', pNosTitulo: 'nosotrosTitulo', pNosTexto: 'nosotrosTexto', pInstagram: 'instagram', pFacebook: 'facebook', pTiktok: 'tiktok' };
 
 function renderPagina() {
-  borrador = { categorias: JSON.parse(JSON.stringify(cats())), horarios: JSON.parse(JSON.stringify(config.horarios || [])) };
+  borrador = { categorias: JSON.parse(JSON.stringify(cats())), horarios: JSON.parse(JSON.stringify(config.horarios || [])), colores: { ...(config.colores || {}) }, secciones: { ...(config.secciones || {}) } };
   Object.entries(CAMPOS_PAGINA).forEach(([id, k]) => $(id).value = config[k] ?? '');
   $('pWhatsapp').value = mostrarTel(config.whatsapp);
   document.querySelectorAll('#vPagina input, #vPagina textarea').forEach(i => i.oninput = marcarSucia);
-  renderFotosPagina(); renderCategoriasAdmin(); renderHorarios(); previsualizarMapa();
+  renderFotosPagina(); renderCategoriasAdmin(); renderHorarios(); previsualizarMapa(); renderSecciones(); renderColores();
   paginaSucia = false; $('paginaEstado').textContent = '';
 }
 function marcarSucia() { paginaSucia = true; $('paginaEstado').textContent = 'Tenés cambios sin guardar'; }
@@ -511,8 +516,11 @@ async function guardarPagina() {
   Object.entries(CAMPOS_PAGINA).forEach(([id, k]) => c[k] = $(id).value.trim());
   c.whatsapp = normalizarTel($('pWhatsapp').value);
   c.instagram = c.instagram.replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/.*$/, '');
+  c.tiktok = (c.tiktok || '').replace(/^https?:\/\/(www\.|vm\.)?tiktok\.com\//, '').replace(/^@/, '').replace(/[/?].*$/, '');
   c.categorias = borrador.categorias.map(x => ({ ...x, label: x.label.trim() || 'Sin nombre', icon: (x.icon || '').trim() }));
   c.horarios = borrador.horarios.filter(h => h.dias.trim() || h.horas.trim());
+  c.colores = { ...borrador.colores };
+  c.secciones = { ...borrador.secciones };
   try {
     await DB.guardarConfig(c);
     config = { ...config, ...c };
@@ -538,4 +546,178 @@ async function guardarAjustes(e) {
   if (!c.aceptaMercadoPago && !c.aceptaTransferencia) return ES.toast('Dejá al menos un medio de pago activo', 'error');
   try { await DB.guardarConfig(c); config = { ...config, ...c }; ES.toast('Guardado ✨', 'success'); }
   catch (e2) { ES.toast(e2.message, 'error'); }
+}
+
+
+// ── Mi página: secciones del inicio ─────────────────────────────
+const SECCIONES = [
+  ['cinta', '✨ Cinta dorada que se mueve'], ['categorias', '🗂️ Categorías con fotos'], ['novedades', '🆕 Novedades'],
+  ['ofertas', '🔥 Ofertas'], ['nosotros', '💛 Nosotros'], ['redes', '📱 TikTok e Instagram'], ['visitanos', '📍 Visitanos y mapa']
+];
+function renderSecciones() {
+  $('listaSecciones').innerHTML = SECCIONES.map(([k, l]) => `
+    <label class="adm-switch"><input type="checkbox" ${borrador.secciones[k] === false ? '' : 'checked'} onchange="borrador.secciones['${k}']=this.checked;marcarSucia()"><span class="sw"></span>${l}</label>`).join('');
+}
+
+// ── Mi página: colores ──────────────────────────────────────────
+const COLORES = [
+  ['verde', 'Verde pastel (fondos)', '#c4dbd3'], ['verdeClaro', 'Verde clarito', '#e4f0eb'], ['dorado', 'Dorado (botones y detalles)', '#c8a45a'],
+  ['crema', 'Crema (fondo general)', '#f7f2e8'], ['pie', 'Pie de página', '#dcebe4'], ['franja', 'Franja de arriba', '#3a3228']
+];
+const colorDe = k => borrador.colores[k] || COLORES.find(c => c[0] === k)[2];
+function renderColores() {
+  $('listaColores').innerHTML = COLORES.map(([k, l]) => `
+    <label class="adm-color"><input type="color" value="${colorDe(k)}" oninput="borrador.colores['${k}']=this.value;pintarMuestra();marcarSucia()"><span>${l}</span></label>`).join('');
+  pintarMuestra();
+}
+function pintarMuestra() {
+  const m = $('muestraColores');
+  m.querySelector('.m-franja').style.background = colorDe('franja');
+  m.querySelector('.m-cuerpo').style.background = `linear-gradient(135deg, ${colorDe('crema')}, ${colorDe('verdeClaro')} 60%, ${colorDe('verde')})`;
+  m.querySelector('.m-boton').style.background = colorDe('dorado');
+  m.querySelector('.m-pie').style.background = `linear-gradient(170deg, ${colorDe('pie')}, ${colorDe('verde')} 140%)`;
+}
+function coloresOriginales() { borrador.colores = {}; renderColores(); marcarSucia(); }
+
+// ── Productos: edición rápida y cambio de precios en masa ───────
+let rapida = false;
+function toggleRapida() {
+  rapida = !rapida;
+  ['panelRapida', 'tablaRapidaWrap'].forEach(id => $(id).classList.toggle('hidden', !rapida));
+  $('listaProductos').classList.toggle('hidden', rapida);
+  $('btnRapida').textContent = rapida ? '🖼️ Ver con fotos' : '⚡ Edición rápida';
+  renderProductos();
+}
+function renderRapida() {
+  const q = $('prodBuscar').value.trim().toLowerCase(), cat = $('prodCat').value;
+  const l = productos.filter(p => (!cat || p.categoria === cat) && (!q || p.nombre.toLowerCase().includes(q)));
+  $('tablaRapida').innerHTML = `<thead><tr><th>Producto</th><th>Precio</th><th>Precio anterior<br><small>(tachado)</small></th><th>Stock</th><th>Visible</th><th>Nuevo</th><th>Destacado</th></tr></thead><tbody>` +
+    l.map(p => {
+      const st = ES.stockTotal(p);
+      return `<tr>
+        <td><b>${esc(p.nombre)}</b><br><small class="texto-suave">${esc(CAT_LABEL[p.categoria])}</small></td>
+        <td><input class="form-input" type="number" min="0" value="${p.precio || 0}" onchange="rapidoCampo('${p.id}','precio',this)"></td>
+        <td><input class="form-input" type="number" min="0" value="${p.precioAnterior || ''}" placeholder="—" onchange="rapidoCampo('${p.id}','precioAnterior',this)"></td>
+        <td><span class="${st <= 0 ? 'stock-no' : st <= 5 ? 'stock-poco' : ''}">${st === Infinity ? '∞' : st}</span> <button class="link-btn" onclick="editarProducto('${p.id}')">editar</button></td>
+        <td><input type="checkbox" ${p.activo !== false ? 'checked' : ''} onchange="rapidoCampo('${p.id}','activo',this)"></td>
+        <td><input type="checkbox" ${p.nuevo ? 'checked' : ''} onchange="rapidoCampo('${p.id}','nuevo',this)"></td>
+        <td><input type="checkbox" ${p.destacado ? 'checked' : ''} onchange="rapidoCampo('${p.id}','destacado',this)"></td>
+      </tr>`;
+    }).join('') + (l.length ? '' : '<tr><td colspan="7" class="texto-suave" style="text-align:center;padding:2rem">No hay productos.</td></tr>') + '</tbody>';
+}
+async function rapidoCampo(id, campo, el) {
+  const p = productos.find(x => x.id === id); if (!p) return;
+  let v = el.type === 'checkbox' ? el.checked : (el.value === '' ? 0 : Math.max(0, Math.round(Number(el.value) || 0)));
+  if (campo === 'precio' && !v) { el.value = p.precio; return ES.toast('El precio no puede quedar en 0', 'error'); }
+  try { await DB.guardarProducto({ ...p, [campo]: v }); p[campo] = v; el.classList.add('guardado'); setTimeout(() => el.classList.remove('guardado'), 900); }
+  catch (e) { ES.toast(e.message, 'error'); }
+}
+async function cambioMasivo() {
+  const cat = $('masCat').value, pct = Math.min(90, Math.max(1, Number($('masPct').value) || 0));
+  const sube = $('masTipo').value === 'sube', oferta = $('masOferta').checked;
+  const l = productos.filter(p => !cat || p.categoria === cat);
+  if (!l.length) return ES.toast('No hay productos para cambiar', 'error');
+  if (!confirm(`¿${sube ? 'Subir' : 'Bajar'} ${pct}% el precio de ${l.length} producto(s)?`)) return;
+  let ok = 0;
+  for (const p of l) {
+    const nuevo = Math.max(100, Math.round(p.precio * (sube ? 1 + pct / 100 : 1 - pct / 100) / 100) * 100);
+    const cambios = { precio: nuevo };
+    if (!sube && oferta) cambios.precioAnterior = p.precioAnterior > p.precio ? p.precioAnterior : p.precio;
+    if (sube && !oferta) cambios.precioAnterior = 0;
+    try { await DB.guardarProducto({ ...p, ...cambios }); Object.assign(p, cambios); ok++; } catch (e) { console.error(e); }
+  }
+  ES.toast(`Listo: ${ok} precio(s) actualizados ✨`, 'success'); renderProductos();
+}
+
+// ── Clientes (se arma con los pedidos) ──────────────────────────
+function listaClientes() {
+  const m = new Map();
+  pedidos.forEach(pd => {
+    const c = pd.cliente || {}; const k = (c.email || pd.email || c.telefono || pd.uid || pd.id).toLowerCase();
+    const x = m.get(k) || { nombre: c.nombre || '', email: c.email || pd.email || '', telefono: c.telefono || '', pedidos: [], gastado: 0, ultimo: 0 };
+    x.pedidos.push(pd);
+    if (!['pendiente', 'cancelado'].includes(pd.estado)) x.gastado += pd.total || 0;
+    if ((pd.creado || 0) > x.ultimo) { x.ultimo = pd.creado || 0; x.nombre = c.nombre || x.nombre; x.telefono = c.telefono || x.telefono; }
+    m.set(k, x);
+  });
+  return [...m.values()].sort((a, b) => b.gastado - a.gastado || b.ultimo - a.ultimo);
+}
+const waDe = tel => { const t = String(tel || '').replace(/\D/g, ''); return t ? (t.startsWith('54') ? t : '549' + t.replace(/^0/, '')) : ''; };
+function renderClientes() {
+  const q = $('cliBuscar').value.trim().toLowerCase();
+  const l = listaClientes().filter(c => !q || [c.nombre, c.email, c.telefono].join(' ').toLowerCase().includes(q));
+  $('tablaClientes').innerHTML = `<thead><tr><th>Clienta</th><th>Contacto</th><th>Pedidos</th><th>Total comprado</th><th>Última compra</th><th></th></tr></thead><tbody>` +
+    l.map(c => `<tr>
+      <td><b>${esc(c.nombre || 'Sin nombre')}</b></td>
+      <td>${esc(c.email)}<br><small class="texto-suave">${esc(c.telefono)}</small></td>
+      <td>${c.pedidos.length} <button class="link-btn" onclick="$('pedBuscar').value='${esc(c.email || c.telefono)}';mostrar('pedidos')">ver</button></td>
+      <td><b>${$p(c.gastado)}</b></td>
+      <td>${c.ultimo ? ES.fecha(c.ultimo) : '—'}</td>
+      <td>${waDe(c.telefono) ? `<a class="btn-primary btn-wa" style="padding:.45rem 1rem;font-size:.75rem" target="_blank" rel="noopener" href="https://wa.me/${waDe(c.telefono)}?text=${encodeURIComponent('¡Hola ' + (c.nombre || '') + '! Te escribimos de Estilo Select 💛')}">WhatsApp</a>` : ''}</td>
+    </tr>`).join('') + (l.length ? '' : '<tr><td colspan="6" class="texto-suave" style="text-align:center;padding:2rem">Todavía no hay clientas. Aparecen cuando alguien hace un pedido.</td></tr>') + '</tbody>';
+}
+
+// ── Descargar a Excel (CSV) ─────────────────────────────────────
+function descargarCSV(nombre, filas) {
+  const csv = '﻿' + filas.map(f => f.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(';')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+}
+const hoyTxt = () => new Date().toISOString().slice(0, 10);
+function exportarPedidos() {
+  const filas = [['Número', 'Fecha', 'Estado', 'Clienta', 'Email', 'Teléfono', 'Entrega', 'Dirección', 'Pago', 'Productos', 'Subtotal', 'Descuento', 'Cupón', 'Envío', 'Total']];
+  pedidos.forEach(pd => {
+    const c = pd.cliente || {}, en = pd.entrega || {};
+    filas.push([numeroPedido(pd), ES.fecha(pd.creado), (ES.ESTADOS[pd.estado] || {}).label || pd.estado, c.nombre, c.email, c.telefono,
+      en.tipo === 'envio' ? 'Envío' : 'Retiro', en.tipo === 'envio' ? [en.direccion, en.ciudad, en.cp].filter(Boolean).join(', ') : '',
+      pd.metodoPago === 'mp' ? 'Mercado Pago' : 'Transferencia/efectivo',
+      (pd.items || []).map(i => `${i.cant}x ${i.nombre} (${[i.color, i.talle].filter(Boolean).join(' ')})`).join(' | '),
+      pd.subtotal || 0, pd.descuento || 0, pd.cupon || '', pd.envio || 0, pd.total || 0]);
+  });
+  descargarCSV(`pedidos-estilo-select-${hoyTxt()}.csv`, filas);
+}
+function exportarClientes() {
+  const filas = [['Nombre', 'Email', 'Teléfono', 'Pedidos', 'Total comprado', 'Última compra']];
+  listaClientes().forEach(c => filas.push([c.nombre, c.email, c.telefono, c.pedidos.length, c.gastado, c.ultimo ? ES.fecha(c.ultimo) : '']));
+  descargarCSV(`clientas-estilo-select-${hoyTxt()}.csv`, filas);
+}
+
+// ── Cupones ─────────────────────────────────────────────────────
+let cupones = [];
+async function renderCupones() {
+  try { cupones = await DB.cupones(); } catch (e) { ES.toast('No se pudieron cargar los cupones: ' + e.message, 'error'); }
+  const hoy = hoyTxt();
+  $('listaCupones').innerHTML = cupones.sort((a, b) => a.codigo.localeCompare(b.codigo)).map(c => {
+    const vencido = c.vence && hoy > c.vence;
+    return `<div class="adm-cupon ${c.activo === false || vencido ? 'off' : ''}">
+      <div class="adm-cupon-cod">${esc(c.codigo)}</div>
+      <div class="adm-cupon-info"><b>${c.tipo === 'monto' ? $p(c.valor) : c.valor + '%'} de descuento</b>
+        <small>${c.minimo ? 'En compras desde ' + $p(c.minimo) : 'Sin compra mínima'} · ${c.vence ? (vencido ? 'Venció el ' : 'Vence el ') + c.vence.split('-').reverse().join('/') : 'Sin vencimiento'}</small></div>
+      <label class="adm-switch"><input type="checkbox" ${c.activo === false ? '' : 'checked'} onchange="activarCupon('${esc(c.codigo)}',this.checked)"><span class="sw"></span>${c.activo === false ? 'Pausado' : 'Activo'}</label>
+      <button class="link-btn" onclick="navigator.clipboard&&navigator.clipboard.writeText('${esc(c.codigo)}');ES.toast('Código copiado')">Copiar</button>
+      <button class="link-btn peligro" onclick="borrarCupon('${esc(c.codigo)}')">Borrar</button>
+    </div>`;
+  }).join('') || '<div class="adm-vacio"><span>🏷️</span><p>Todavía no creaste cupones.</p></div>';
+}
+async function crearCupon(e) {
+  e.preventDefault();
+  const codigo = $('cuCodigo').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+  const valor = Number($('cuValor').value) || 0, tipo = $('cuTipo').value;
+  if (!codigo) return ES.toast('Poné un código (solo letras y números)', 'error');
+  if (valor <= 0 || (tipo === 'porcentaje' && valor > 90)) return ES.toast(tipo === 'porcentaje' ? 'El porcentaje tiene que ser entre 1 y 90' : 'Poné un monto mayor a 0', 'error');
+  if (cupones.some(c => c.codigo === codigo) && !confirm(`Ya existe ${codigo}. ¿Reemplazarlo?`)) return;
+  try {
+    await DB.guardarCupon(codigo, { tipo, valor, minimo: Number($('cuMinimo').value) || 0, vence: $('cuVence').value || '', activo: true, creado: Date.now() });
+    e.target.reset(); ES.toast(`Cupón ${codigo} creado 🎉`, 'success'); renderCupones();
+  } catch (err) { ES.toast(err.message, 'error'); }
+}
+async function activarCupon(codigo, activo) {
+  const c = cupones.find(x => x.codigo === codigo); if (!c) return;
+  const { codigo: _, ...datos } = c;
+  try { await DB.guardarCupon(codigo, { ...datos, activo }); renderCupones(); } catch (e) { ES.toast(e.message, 'error'); }
+}
+async function borrarCupon(codigo) {
+  if (!confirm(`¿Borrar el cupón ${codigo}?`)) return;
+  try { await DB.borrarCupon(codigo); renderCupones(); } catch (e) { ES.toast(e.message, 'error'); }
 }

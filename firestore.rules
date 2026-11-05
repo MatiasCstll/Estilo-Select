@@ -25,6 +25,12 @@ service cloud.firestore {
       allow write: if esAdmin();
     }
 
+    // Cupones de descuento: se puede consultar uno por su código, pero no ver la lista
+    match /cupones/{codigo} {
+      allow get: if true;
+      allow list, write: if esAdmin();
+    }
+
     // Lista de administradoras: se carga a mano desde la consola de Firebase
     match /admins/{uid} {
       allow read: if logueado() && request.auth.uid == uid;

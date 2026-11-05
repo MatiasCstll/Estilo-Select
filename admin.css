@@ -212,3 +212,45 @@
   .foto-slot { width: calc(50% - .5rem); }
   .adm-prod-lista { grid-template-columns: 1fr 1fr; gap: .75rem; }
 }
+
+/* ============================================================
+   v4 — CLIENTES, CUPONES, EDICIÓN RÁPIDA, COLORES Y SECCIONES
+   ============================================================ */
+.adm-switch { display: flex; align-items: center; gap: .6rem; cursor: pointer; font-size: .9rem; }
+.adm-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.adm-switch .sw { flex-shrink: 0; width: 42px; height: 24px; border-radius: 50px; background: var(--crema-oscura); position: relative; transition: var(--transicion); }
+.adm-switch .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: var(--transicion); }
+.adm-switch input:checked + .sw { background: var(--dorado); }
+.adm-switch input:checked + .sw::after { left: 21px; }
+.adm-switch input:focus-visible + .sw { outline: 2px solid var(--dorado-oscuro); outline-offset: 2px; }
+.adm-secciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .9rem 1.5rem; }
+
+.adm-colores { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .75rem; margin-bottom: 1rem; }
+.adm-color { display: flex; align-items: center; gap: .75rem; padding: .55rem .75rem; background: var(--crema); border-radius: 12px; cursor: pointer; font-size: .88rem; }
+.adm-color input { width: 46px; height: 38px; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 8px; }
+.adm-muestra { border-radius: 14px; overflow: hidden; border: 1px solid var(--crema-oscura); margin-bottom: .75rem; font-size: .78rem; }
+.adm-muestra .m-franja { color: #e8c97e; text-align: center; padding: .35rem; letter-spacing: .12em; text-transform: uppercase; }
+.adm-muestra .m-cuerpo { display: flex; gap: 1rem; align-items: center; justify-content: center; padding: 1.6rem; }
+.adm-muestra .m-boton { color: #fff; padding: .55rem 1.3rem; border-radius: 8px; font-weight: 600; }
+.adm-muestra .m-tarjeta { background: #fff; padding: .55rem 1.3rem; border-radius: 8px; box-shadow: var(--sombra); }
+.adm-muestra .m-pie { text-align: center; padding: .8rem; color: var(--texto); }
+
+.adm-masivo { margin-bottom: 1rem; }
+.adm-masivo-fila { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin-bottom: .5rem; }
+.adm-masivo-fila .form-select { width: auto; }
+.adm-rapida td { vertical-align: middle; }
+.adm-rapida .form-input { width: 120px; padding: .45rem .6rem; }
+.adm-rapida input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--dorado); }
+.adm-rapida .guardado { border-color: #2f8a5b !important; box-shadow: 0 0 0 3px rgba(47,138,91,.15); }
+
+.adm-cupon-form { margin-bottom: 1.5rem; }
+.adm-cupones { display: grid; gap: .75rem; }
+.adm-cupon { display: flex; align-items: center; gap: 1rem 1.25rem; flex-wrap: wrap; background: var(--blanco); border-radius: var(--radio); padding: 1rem 1.25rem; box-shadow: var(--sombra); }
+.adm-cupon.off { opacity: .6; }
+.adm-cupon-cod { font-family: monospace; font-size: 1.1rem; font-weight: 700; letter-spacing: .08em; background: var(--verde-claro); color: var(--dorado-oscuro); padding: .45rem .85rem; border-radius: 8px; border: 1.5px dashed var(--dorado); }
+.adm-cupon-info { flex: 1; min-width: 180px; display: flex; flex-direction: column; }
+.adm-cupon-info small { color: var(--texto-suave); }
+.link-btn.peligro { color: #b8512f; }
+.adm-tabs { overflow-x: auto; scrollbar-width: none; }
+.adm-tabs button { white-space: nowrap; }
+.adm-cupon-form .form-row { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }

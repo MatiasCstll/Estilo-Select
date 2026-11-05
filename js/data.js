@@ -46,7 +46,7 @@
   //  MODO DEMO (navegador)
   // ════════════════════════════════════════════════════════════
   function crearDemo() {
-    const K = { prod: 'es_v2_productos', ped: 'es_v2_pedidos', users: 'es_v2_usuarios', ses: 'es_v2_sesion', cfg: 'es_v2_config', img: 'es_v2_imagenes' };
+    const K = { prod: 'es_v2_productos', ped: 'es_v2_pedidos', users: 'es_v2_usuarios', ses: 'es_v2_sesion', cfg: 'es_v2_config', img: 'es_v2_imagenes', cup: 'es_v2_cupones' };
     if (!LS.get(K.prod)) LS.set(K.prod, PRODUCTOS_DEMO);
     const users = () => LS.get(K.users, {});
     const sesion = () => { const s = LS.get(K.ses); const u = s && users()[s]; return u ? { uid: u.uid, email: u.email, nombre: u.nombre, esAdmin: true } : null; };
@@ -93,6 +93,10 @@
         const im = LS.get(K.img, {}); if (src) im[key] = src; else delete im[key];
         if (!LS.set(K.img, im)) throw new Error('No hay más espacio en el navegador (modo demo). Probá con una foto más liviana.');
       },
+      async cupon(codigo) { const c = String(codigo || '').trim().toUpperCase(); const l = LS.get(K.cup, {}); return l[c] ? { codigo: c, ...l[c] } : null; },
+      async cupones() { return Object.entries(LS.get(K.cup, {})).map(([codigo, d]) => ({ codigo, ...d })); },
+      async guardarCupon(codigo, d) { const l = LS.get(K.cup, {}); l[codigo] = d; LS.set(K.cup, l); },
+      async borrarCupon(codigo) { const l = LS.get(K.cup, {}); delete l[codigo]; LS.set(K.cup, l); },
 
       async favoritos() { const s = LS.get(K.ses); return s ? (users()[s]?.favoritos || []) : []; },
       async toggleFavorito(pid) {
@@ -210,6 +214,15 @@
         const ref = db.collection('imagenes').doc(key);
         if (src) await ref.set({ src, actualizado: TS() }); else await ref.delete();
       },
+      // Cupones: cada uno es un documento con el código como nombre (nadie puede listarlos salvo el admin)
+      async cupon(codigo) {
+        const c = String(codigo || '').trim().toUpperCase(); if (!c || c.includes('/')) return null;
+        const d = await db.collection('cupones').doc(c).get();
+        return d.exists ? { codigo: c, ...d.data() } : null;
+      },
+      async cupones() { const q = await db.collection('cupones').get(); return q.docs.map(d => ({ codigo: d.id, ...d.data() })); },
+      async guardarCupon(codigo, d) { await db.collection('cupones').doc(codigo).set(d); },
+      async borrarCupon(codigo) { await db.collection('cupones').doc(codigo).delete(); },
 
       async favoritos() {
         if (!usuarioActual) return [];
@@ -244,10 +257,22 @@
     };
   }
 
+  // Devuelve { descuento, error } para un cupón y un subtotal
+  function calcularCupon(cup, subtotal, hoy) {
+    if (!cup || cup.activo === false) return { descuento: 0, error: 'Ese cupón no existe o ya no está activo.' };
+    const d = hoy || new Date().toISOString().slice(0, 10);
+    if (cup.vence && d > cup.vence) return { descuento: 0, error: 'Ese cupón ya venció.' };
+    if (cup.minimo && subtotal < Number(cup.minimo)) return { descuento: 0, error: 'Ese cupón es para compras desde $' + Number(cup.minimo).toLocaleString('es-AR') + '.' };
+    const v = Number(cup.valor) || 0;
+    const desc = cup.tipo === 'monto' ? v : Math.round(subtotal * Math.min(100, v) / 100);
+    return { descuento: Math.max(0, Math.min(subtotal, Math.round(desc))), error: null };
+  }
+
   window.DB = usarFirebase ? crearFirebase() : crearDemo();
 
   // ── Utilidades compartidas ────────────────────────────────────
   window.ES = {
+    calcularCupon,
     // Categorías de la tienda (vienen de Ajustes; si no hay, las de config.js)
     categorias: cfg => ((cfg && cfg.categorias && cfg.categorias.length) ? cfg.categorias : (CFG.tiendaDefault.categorias || [])),
     slug: t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'cat',
@@ -306,4 +331,25 @@
       setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .4s'; setTimeout(() => t.remove(), 400); }, 3200);
     }
   };
+
+  // Botón de "ojito" para ver u ocultar la contraseña
+  const OJO = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const OJO_NO = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
+  function ponerOjitos() {
+    document.querySelectorAll('input[type="password"]:not([data-ojito])').forEach(inp => {
+      inp.dataset.ojito = '1';
+      const wrap = document.createElement('div'); wrap.className = 'pass-wrap';
+      inp.parentNode.insertBefore(wrap, inp); wrap.appendChild(inp);
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'pass-ojo';
+      b.setAttribute('aria-label', 'Mostrar contraseña'); b.innerHTML = OJO;
+      b.onclick = () => {
+        const ver = inp.type === 'password'; inp.type = ver ? 'text' : 'password';
+        b.innerHTML = ver ? OJO_NO : OJO; b.setAttribute('aria-label', ver ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        inp.focus();
+      };
+      wrap.appendChild(b);
+    });
+  }
+  window.ES.ponerOjitos = ponerOjitos;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ponerOjitos); else ponerOjitos();
 })();

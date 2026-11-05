@@ -6,8 +6,8 @@
   <title>Panel Admin — Estilo Select</title>
   <meta name="robots" content="noindex">
   <link rel="icon" href="favicon.png">
-  <link rel="stylesheet" href="styles.css?v=2">
-  <link rel="stylesheet" href="admin.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="admin.css?v=3">
 </head>
 <body class="admin-body">
 
@@ -20,6 +20,8 @@
       <button data-v="resumen" class="on">🏠 Inicio</button>
       <button data-v="productos">👗 Productos</button>
       <button data-v="pedidos">📦 Pedidos <span class="adm-badge hidden" id="badgePendientes"></span></button>
+      <button data-v="clientes">👥 Clientes</button>
+      <button data-v="promos">🏷️ Cupones</button>
       <button data-v="pagina">✨ Mi página</button>
       <button data-v="ajustes">🚚 Envíos y pagos</button>
     </nav>
@@ -53,6 +55,8 @@
       <button class="atajo" onclick="mostrar('pedidos')"><span>📦</span><b>Ver pedidos</b><small id="atajoPedidos">Lo que te compraron</small></button>
       <button class="atajo" onclick="mostrar('pagina')"><span>✨</span><b>Cambiar mi página</b><small>Fotos, textos, horarios, mapa</small></button>
       <button class="atajo" onclick="mostrar('productos')"><span>👗</span><b>Mis productos</b><small>Editar precios y stock</small></button>
+      <button class="atajo" onclick="mostrar('promos')"><span>🏷️</span><b>Crear un cupón</b><small>Descuentos para tus clientas</small></button>
+      <button class="atajo" onclick="mostrar('clientes')"><span>👥</span><b>Mis clientas</b><small>Quién te compró y cuánto</small></button>
     </div>
     <div class="kpis" id="kpis"></div>
     <div class="adm-2col">
@@ -68,6 +72,7 @@
       <div class="adm-filtros">
         <input class="form-input" id="pedBuscar" type="search" placeholder="Buscar por cliente, email o número">
         <select class="form-select" id="pedEstado"><option value="">Todos los estados</option></select>
+        <button class="btn-secondary" onclick="exportarPedidos()" title="Se abre con Excel">⬇ Descargar Excel</button>
       </div>
     </div>
     <div class="adm-tabla-wrap"><table class="adm-tabla" id="tablaPedidos"></table></div>
@@ -80,9 +85,22 @@
       <div class="adm-filtros">
         <input class="form-input" id="prodBuscar" type="search" placeholder="Buscar producto">
         <select class="form-select" id="prodCat"><option value="">Todas las categorías</option></select>
+        <button class="btn-secondary" id="btnRapida" onclick="toggleRapida()">⚡ Edición rápida</button>
         <button class="btn-primary" onclick="editarProducto()">➕ Agregar producto</button>
       </div>
     </div>
+    <div class="adm-card adm-masivo hidden" id="panelRapida">
+      <div class="adm-masivo-fila">
+        <b>Cambiar precios de golpe:</b>
+        <select class="form-select" id="masCat"><option value="">Todos los productos</option></select>
+        <select class="form-select" id="masTipo"><option value="sube">Subir</option><option value="baja">Bajar</option></select>
+        <input class="form-input" id="masPct" type="number" min="1" max="90" value="10" style="width:90px"> <span>%</span>
+        <label class="adm-check"><input type="checkbox" id="masOferta"> Mostrar como oferta (precio anterior tachado)</label>
+        <button class="btn-primary" onclick="cambioMasivo()">Aplicar</button>
+      </div>
+      <p class="form-hint">Los precios se redondean a $100. En la tabla de abajo cambiás cada precio y se guarda solo al salir del casillero.</p>
+    </div>
+    <div class="adm-tabla-wrap hidden" id="tablaRapidaWrap"><table class="adm-tabla adm-rapida" id="tablaRapida"></table></div>
     <div class="adm-prod-lista" id="listaProductos"></div>
   </section>
 
@@ -144,15 +162,65 @@
     </div>
 
     <div class="adm-card adm-bloque">
+      <h3>👁️ Qué se muestra en el inicio</h3>
+      <p class="form-hint" style="margin-bottom:1rem">Apagá lo que no quieras mostrar. La portada siempre se ve.</p>
+      <div class="adm-secciones" id="listaSecciones"></div>
+    </div>
+
+    <div class="adm-card adm-bloque">
+      <h3>🎨 Colores de la página</h3>
+      <p class="form-hint" style="margin-bottom:1rem">Tocá un color para cambiarlo. Mirá cómo queda en la muestrita y guardá con el botón dorado. Si no te gusta, "Volver a los originales".</p>
+      <div class="adm-colores" id="listaColores"></div>
+      <div class="adm-muestra" id="muestraColores"><div class="m-franja">Franja de arriba</div><div class="m-cuerpo"><span class="m-boton">Botón</span><span class="m-tarjeta">Tarjeta</span></div><div class="m-pie">Pie de página</div></div>
+      <button type="button" class="link-btn" onclick="coloresOriginales()">↺ Volver a los colores originales</button>
+    </div>
+
+    <div class="adm-card adm-bloque">
       <h3>📱 Contacto y redes</h3>
       <div class="form-row">
         <div class="form-group"><label class="form-label" for="pWhatsapp">WhatsApp de la tienda</label><input class="form-input" id="pWhatsapp" placeholder="3772 55 1234"><div class="form-hint">Poné el número como lo marcás normalmente; nosotros le agregamos el +54 9</div></div>
         <div class="form-group"><label class="form-label" for="pInstagram">Instagram</label><input class="form-input" id="pInstagram" placeholder="estiloselect"></div>
       </div>
-      <div class="form-group"><label class="form-label" for="pFacebook">Facebook (link)</label><input class="form-input" id="pFacebook" placeholder="https://facebook.com/..."></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="pTiktok">TikTok</label><input class="form-input" id="pTiktok" placeholder="estiloselect"><div class="form-hint">Tu usuario de TikTok, con o sin @. También podés pegar el link.</div></div>
+        <div class="form-group"><label class="form-label" for="pFacebook">Facebook (link)</label><input class="form-input" id="pFacebook" placeholder="https://facebook.com/..."></div>
+      </div>
     </div>
 
     <div class="adm-guardar-barra"><span id="paginaEstado" class="texto-suave"></span><button class="btn-form-submit" onclick="guardarPagina()">💾 Guardar cambios</button></div>
+  </section>
+
+  <!-- Clientes -->
+  <section id="vClientes" class="adm-vista hidden">
+    <div class="adm-titulo-fila">
+      <h1 class="adm-h1">Mis clientas</h1>
+      <div class="adm-filtros">
+        <input class="form-input" id="cliBuscar" type="search" placeholder="Buscar por nombre, email o teléfono">
+        <button class="btn-secondary" onclick="exportarClientes()">⬇ Descargar Excel</button>
+      </div>
+    </div>
+    <p class="adm-ayuda">Se arma sola con los pedidos. Tocá una clienta para ver sus compras o escribile por WhatsApp.</p>
+    <div class="adm-tabla-wrap"><table class="adm-tabla" id="tablaClientes"></table></div>
+  </section>
+
+  <!-- Cupones -->
+  <section id="vPromos" class="adm-vista hidden">
+    <h1 class="adm-h1">Cupones de descuento</h1>
+    <p class="adm-ayuda">Creá un código (por ejemplo <b>BIENVENIDA</b>) y pasáselo a tus clientas. Lo escriben al pagar y se les descuenta solo. Nadie puede ver la lista de cupones desde la tienda.</p>
+    <form class="adm-card adm-cupon-form" id="cuponForm">
+      <h3>➕ Nuevo cupón</h3>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="cuCodigo">Código</label><input class="form-input" id="cuCodigo" placeholder="BIENVENIDA" maxlength="30" required style="text-transform:uppercase"></div>
+        <div class="form-group"><label class="form-label" for="cuTipo">Tipo de descuento</label><select class="form-select" id="cuTipo"><option value="porcentaje">Porcentaje (%)</option><option value="monto">Monto fijo ($)</option></select></div>
+        <div class="form-group"><label class="form-label" for="cuValor">Cuánto</label><input class="form-input" id="cuValor" type="number" min="1" placeholder="10" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="cuMinimo">Compra mínima (opcional)</label><input class="form-input" id="cuMinimo" type="number" min="0" placeholder="0"></div>
+        <div class="form-group"><label class="form-label" for="cuVence">Vence (opcional)</label><input class="form-input" id="cuVence" type="date"></div>
+      </div>
+      <button class="btn-form-submit">Crear cupón</button>
+    </form>
+    <div class="adm-cupones" id="listaCupones"></div>
   </section>
 
   <!-- Envíos y pagos -->
@@ -290,8 +358,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="js/config.js?v=2"></script>
-<script src="js/data.js?v=2"></script>
-<script src="js/admin.js?v=2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/admin.js?v=3"></script>
 </body>
 </html>

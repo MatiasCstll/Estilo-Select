@@ -10,8 +10,8 @@
   <meta property="og:image" content="logo.jpg">
   <meta name="theme-color" content="#f7f2e8">
   <link rel="icon" href="favicon.png">
-  <!-- ?v=2 → cada vez que subas cambios, sumale 1 (así el navegador baja la versión nueva) -->
-  <link rel="stylesheet" href="styles.css?v=2">
+  <!-- ?v=3 → cada vez que subas cambios, sumale 1 (así el navegador baja la versión nueva) -->
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 
@@ -76,10 +76,10 @@
   </section>
 
   <!-- Cinta animada -->
-  <div class="cinta" aria-hidden="true"><div class="cinta-track" id="cinta"></div></div>
+  <div data-seccion="cinta" class="cinta" aria-hidden="true"><div class="cinta-track" id="cinta"></div></div>
 
   <!-- Categorías -->
-  <section class="seccion">
+  <section data-seccion="categorias" class="seccion">
     <div class="container container-xl">
       <div class="section-header">
         <h2><span>Elegí tu estilo</span>Comprá por categoría</h2>
@@ -90,7 +90,7 @@
   </section>
 
   <!-- Novedades -->
-  <section class="seccion seccion-verde">
+  <section data-seccion="novedades" class="seccion seccion-verde">
     <div class="container container-xl">
       <div class="seccion-titulo-fila">
         <h2 class="titulo-seccion"><span>Recién llegados</span>Novedades</h2>
@@ -101,7 +101,7 @@
   </section>
 
   <!-- Ofertas -->
-  <section class="seccion hidden" id="seccionOfertas">
+  <section data-seccion="ofertas" class="seccion hidden" id="seccionOfertas">
     <div class="container container-xl">
       <div class="seccion-titulo-fila">
         <h2 class="titulo-seccion"><span>Aprovechá</span>Ofertas</h2>
@@ -112,7 +112,7 @@
   </section>
 
   <!-- Nosotros -->
-  <section class="section-about" id="nosotros">
+  <section data-seccion="nosotros" class="section-about" id="nosotros">
     <div class="container container-xl">
       <div class="about-grid">
         <div class="about-img-wrap">
@@ -133,8 +133,23 @@
     </div>
   </section>
 
+  <!-- Redes: TikTok e Instagram -->
+  <section data-seccion="redes" class="redes-banda hidden" id="redesBanda">
+    <div class="container redes-inner">
+      <div>
+        <span class="redes-tag">Seguinos</span>
+        <h2 class="redes-titulo">Mirá las novedades en <em>nuestras redes</em></h2>
+        <p class="texto-suave">Videos de los ingresos, combinaciones y promos antes que nadie.</p>
+      </div>
+      <div class="redes-botones">
+        <a href="#" class="redes-btn redes-tt js-tt-link hidden" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M22.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5c-1.42 0-2.6-1.22-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"/></svg> TikTok</a>
+        <a href="#" class="redes-btn redes-ig js-ig-link hidden" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>
+      </div>
+    </div>
+  </section>
+
   <!-- Visitanos: horarios + mapa -->
-  <section class="section-visitanos" id="visitanos">
+  <section data-seccion="visitanos" class="section-visitanos" id="visitanos">
     <div class="container container-xl">
       <div class="section-header">
         <h2><span>Te esperamos</span>Visitanos en el local</h2>
@@ -213,6 +228,7 @@
         <p>Boutique de moda femenina en <span class="js-ubicacion"></span>. Elegancia, calidad y estilo en cada prenda.</p>
         <div class="social-links" style="margin-top:1.25rem;">
           <a href="#" class="social-link js-ig-link" aria-label="Instagram" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" class="social-link js-tt-link hidden" aria-label="TikTok" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"/></svg></a>
           <a href="#" class="social-link js-wa-link" aria-label="WhatsApp" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
           <a href="#" class="social-link js-fb-link" aria-label="Facebook" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
         </div>
@@ -351,7 +367,13 @@
         <aside class="co-resumen">
           <h4>Resumen</h4>
           <div id="coItems"></div>
+          <div class="co-cupon">
+            <input class="form-input" id="coCuponInput" placeholder="¿Tenés un cupón?" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();aplicarCupon()}">
+            <button type="button" class="btn-form-cancel" onclick="aplicarCupon()">Aplicar</button>
+          </div>
+          <div class="co-cupon-ok hidden" id="coCuponOk"></div>
           <div class="co-linea"><span>Subtotal</span><span id="coSubtotal"></span></div>
+          <div class="co-linea co-desc hidden" id="coDescLinea"><span>Descuento</span><span id="coDesc"></span></div>
           <div class="co-linea"><span>Envío</span><span id="coEnvio"></span></div>
           <div class="co-linea co-total"><span>Total</span><span id="coTotal"></span></div>
           <div class="form-error hidden" id="coError"></div>
@@ -396,8 +418,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="js/config.js?v=2"></script>
-<script src="js/data.js?v=2"></script>
-<script src="js/tienda.js?v=2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/tienda.js?v=3"></script>
 </body>
 </html>

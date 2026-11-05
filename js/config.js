@@ -11,12 +11,12 @@
    ============================================================ */
 window.ES_CONFIG = {
   firebase: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyAvdCPr-H4WTfp2VLpi7gslKuzuQKd-_n8",
+    authDomain: "estilo-select.firebaseapp.com",
+    projectId: "estilo-select",
+    storageBucket: "estilo-select.firebasestorage.app",
+    messagingSenderId: "625806679174",
+    appId: "1:625806679174:web:836b4cefdc3ed4d97dc507"
   },
 
   // Dirección de la API de pagos. Si la página y la API están en el
@@ -30,6 +30,7 @@ window.ES_CONFIG = {
     whatsapp: "",            // con código de país, sin + ni espacios. Ej: 5493772555123
     instagram: "",           // usuario sin @
     facebook: "",            // link completo
+    tiktok: "",              // usuario sin @
 
     // Local (sección "Visitanos" y mapa)
     ubicacion: "Paso de los Libres, Corrientes",
