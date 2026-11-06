@@ -553,7 +553,13 @@ function quitarItem(i) { carrito.splice(i, 1); guardarCarrito(); }
 // ── Modales ─────────────────────────────────────────────────────
 function abrir(id) { document.getElementById(id).classList.add('open'); }
 function cerrar(id) { document.getElementById(id).classList.remove('open'); }
-function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+function toggleMenu() {
+  // El menú se abre justo debajo de la barra (que baja un poco si está la franja de arriba)
+  const m = document.getElementById('mobileMenu');
+  const abajo = Math.max(0, Math.round(document.getElementById('header').getBoundingClientRect().bottom));
+  m.style.top = abajo + 'px'; m.style.maxHeight = `calc(100vh - ${abajo}px)`;
+  m.classList.toggle('open');
+}
 
 function mostrarInfo(titulo, html) {
   document.getElementById('infoTitulo').textContent = titulo;

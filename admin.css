@@ -254,3 +254,38 @@
 .adm-tabs { overflow-x: auto; scrollbar-width: none; }
 .adm-tabs button { white-space: nowrap; }
 .adm-cupon-form .form-row { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+/* ============================================================
+   v5 — PANEL EN EL CELULAR
+   ============================================================ */
+@media (max-width: 900px) {
+  /* Las pestañas van en su propia fila, a lo ancho, y se deslizan con el dedo */
+  .adm-tabs { flex: 1 1 100%; }
+}
+@media (max-width: 640px) {
+  .adm-header-inner { gap: .6rem 1rem; min-height: 64px; padding-top: .5rem; padding-bottom: .5rem; }
+  .adm-logo img { height: 36px; }
+  .adm-tabs { padding-bottom: .25rem; }
+  .adm-h1 { font-size: 1.9rem; }
+  .adm-card { padding: 1.25rem 1.1rem; }
+
+  /* Buscador y filtros a lo ancho */
+  .adm-filtros { width: 100%; }
+  .adm-filtros .form-input, .adm-filtros .form-select { flex: 1 1 100%; min-width: 0; width: 100%; }
+  .adm-filtros .btn-primary, .adm-filtros .btn-secondary { flex: 1 1 100%; text-align: center; justify-content: center; }
+
+  /* Tarjetas de productos: "Editar" arriba, el resto en una fila */
+  .adm-prod-acc button:first-child { flex: 1 1 100%; }
+  .adm-prod-acc button, .adm-prod-acc button[title] { flex: 1 1 0; padding: .55rem .3rem; }
+
+  /* Botones de guardar que no se corten */
+  .form-actions-sticky { gap: .6rem; }
+  .form-actions-sticky .btn-form-cancel { padding: .85rem 1rem; }
+  .form-actions-sticky .btn-form-submit { letter-spacing: .04em; }
+  .adm-guardar-barra { padding: .85rem 1rem; }
+  .adm-guardar-barra .btn-form-submit { flex: 1; padding: .95rem 1rem; }
+
+  .adm-atajos { gap: .75rem; }
+  .atajo { padding: 1.2rem 1rem; }
+  .kpi-n { font-size: 1.6rem; }
+}
