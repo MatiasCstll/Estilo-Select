@@ -10,8 +10,8 @@
   <meta property="og:image" content="logo.jpg">
   <meta name="theme-color" content="#f7f2e8">
   <link rel="icon" href="favicon.png">
-  <!-- ?v=3 → cada vez que subas cambios, sumale 1 (así el navegador baja la versión nueva) -->
-  <link rel="stylesheet" href="styles.css?v=3">
+  <!-- ?v=4 → cada vez que subas cambios, sumale 1 (así el navegador baja la versión nueva) -->
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 
@@ -315,7 +315,12 @@
 <div class="modal-overlay" id="modalCuenta" role="dialog" aria-modal="true">
   <div class="modal modal-lg">
     <div class="modal-header">
-      <h3>Hola, <span id="cuentaNombre"></span> ✨</h3>
+      <h3 id="cuentaSaludo">Hola, <span id="cuentaNombre"></span> ✨ <button type="button" class="link-btn cuenta-editar" onclick="editarNombre()">✏️ Cambiar nombre</button></h3>
+      <form id="cuentaNombreForm" class="cuenta-nombre-form hidden" onsubmit="guardarNombre(event)">
+        <input class="form-input" id="cuentaNombreInput" maxlength="60" placeholder="Tu nombre" required>
+        <button class="btn-form-submit">Guardar</button>
+        <button type="button" class="btn-form-cancel" onclick="cancelarNombre()">Cancelar</button>
+      </form>
       <button class="modal-close" onclick="cerrar('modalCuenta')" aria-label="Cerrar">✕</button>
     </div>
     <div class="modal-body">
@@ -418,8 +423,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="js/config.js?v=3"></script>
-<script src="js/data.js?v=3"></script>
-<script src="js/tienda.js?v=3"></script>
+<script src="js/config.js?v=4"></script>
+<script src="js/data.js?v=4"></script>
+<script src="js/tienda.js?v=4"></script>
 </body>
 </html>

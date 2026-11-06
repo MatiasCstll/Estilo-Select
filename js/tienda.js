@@ -613,10 +613,31 @@ async function logout() { await DB.logout(); cerrar('modalCuenta'); ES.toast('Se
 // ── Mi cuenta ───────────────────────────────────────────────────
 function abrirCuenta() {
   if (!usuario) return abrirAuth('login');
+  cancelarNombre();
   document.getElementById('cuentaNombre').textContent = (usuario.nombre || '').split(' ')[0];
   document.getElementById('cuentaEmail').textContent = usuario.email || '';
   cuentaTab('pedidos');
   abrir('modalCuenta');
+}
+
+function editarNombre() {
+  document.getElementById('cuentaSaludo').classList.add('hidden');
+  document.getElementById('cuentaNombreForm').classList.remove('hidden');
+  const i = document.getElementById('cuentaNombreInput'); i.value = usuario.nombre || ''; i.focus(); i.select();
+}
+function cancelarNombre() {
+  document.getElementById('cuentaSaludo').classList.remove('hidden');
+  document.getElementById('cuentaNombreForm').classList.add('hidden');
+}
+async function guardarNombre(ev) {
+  ev.preventDefault();
+  const n = document.getElementById('cuentaNombreInput').value.trim().replace(/\s+/g, ' ');
+  if (!n) return;
+  try {
+    await DB.cambiarNombre(n);
+    document.getElementById('cuentaNombre').textContent = n.split(' ')[0];
+    cancelarNombre(); ES.toast('¡Listo, ' + n.split(' ')[0] + '! ✨', 'success');
+  } catch (e) { ES.toast('No se pudo guardar el nombre. Probá de nuevo.', 'error'); }
 }
 
 function chipEstado(e) { const s = ES.ESTADOS[e] || { label: e, color: '#999' }; return `<span class="chip-estado" style="--c:${s.color}">${s.label}</span>`; }
