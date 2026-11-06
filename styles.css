@@ -1523,3 +1523,9 @@ footer .social-link:hover { color: var(--blanco); background: var(--dorado); bor
 .co-cupon-ok .link-btn { margin-left: .4rem; font-size: .8rem; }
 .co-desc span:last-child { color: #2f8a5b; font-weight: 600; }
 .redes-tag { font-family: 'Great Vibes', cursive; color: var(--dorado); font-size: 1.9rem; line-height: 1; }
+
+/* Cambiar nombre en "Mi cuenta" */
+.cuenta-editar { font-size: .78rem; margin-left: .5rem; vertical-align: middle; font-family: 'Jost', sans-serif; }
+.cuenta-nombre-form { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.cuenta-nombre-form .form-input { flex: 1; min-width: 180px; }
+.cuenta-nombre-form .btn-form-submit, .cuenta-nombre-form .btn-form-cancel { width: auto; padding: .7rem 1.2rem; }

@@ -71,6 +71,10 @@
         if (!u || u.pass !== pass) throw new Error('Email o contraseña incorrectos.');
         LS.set(K.ses, email); emitir(sesion());
       },
+      async cambiarNombre(nombre) {
+        const s = LS.get(K.ses); const us = users(); if (!s || !us[s]) throw new Error('login');
+        us[s].nombre = nombre; LS.set(K.users, us); emitir(sesion());
+      },
       async loginGoogle() { throw new Error('En modo demo usá email y contraseña. Google funciona cuando conectes Firebase.'); },
       async recuperar() { throw new Error('En modo demo no se envían emails.'); },
       async logout() { localStorage.removeItem(K.ses); emitir(null); },
@@ -178,6 +182,12 @@
           await db.collection('usuarios').doc(r.user.uid).set({ nombre, email: email.trim(), favoritos: [], creado: TS() }, { merge: true });
           emitir({ uid: r.user.uid, email: r.user.email, nombre, esAdmin: false });
         } catch (e) { throw traducir(e); }
+      },
+      async cambiarNombre(nombre) {
+        const u = auth.currentUser; if (!u) throw new Error('login');
+        await u.updateProfile({ displayName: nombre });
+        await db.collection('usuarios').doc(u.uid).set({ nombre }, { merge: true });
+        emitir({ ...usuarioActual, nombre });
       },
       async login(email, pass) { try { await auth.signInWithEmailAndPassword(email.trim(), pass); } catch (e) { throw traducir(e); } },
       async loginGoogle() {
