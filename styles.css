@@ -1529,3 +1529,82 @@ footer .social-link:hover { color: var(--blanco); background: var(--dorado); bor
 .cuenta-nombre-form { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .5rem; }
 .cuenta-nombre-form .form-input { flex: 1; min-width: 180px; }
 .cuenta-nombre-form .btn-form-submit, .cuenta-nombre-form .btn-form-cancel { width: auto; padding: .7rem 1.2rem; }
+
+/* ============================================================
+   v5 — COLORES FIJOS (aunque el celu/compu esté en modo oscuro)
+        + AJUSTES PARA CELULARES
+   ============================================================ */
+/* La página se ve siempre con sus colores claros: el navegador no la oscurece */
+:root { color-scheme: only light; }
+html { background-color: var(--crema); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+input, select, textarea, button { color-scheme: light; }
+a, button { -webkit-tap-highlight-color: transparent; }
+
+/* Ventanas y carrito: usan el alto real de la pantalla del celu */
+.cart-sidebar { height: 100vh; height: 100dvh; }
+.cart-footer { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }
+
+@media (max-width: 640px) {
+  /* Campos de 16px: así el iPhone no hace zoom al tocar para escribir */
+  .form-input, .form-select, .form-textarea, .search-box input { font-size: 16px; }
+
+  /* Menos espacio vacío entre secciones */
+  .seccion { padding: 3rem 0; }
+  .section-about { padding: 3.5rem 0; }
+  .section-visitanos { padding: 3.5rem 0 4rem; }
+  .about-grid { gap: 2.5rem; }
+
+  /* Portada: botones del mismo ancho, uno abajo del otro */
+  .hero2 { padding: 2rem 0 3rem; }
+  .hero2 h1 { font-size: clamp(2.4rem, 11vw, 3rem); }
+  .hero-btns { flex-direction: column; gap: .75rem; }
+  .hero-btns .btn-lg { width: 100%; text-align: center; justify-content: center; }
+  .hero2 .hero-perks { margin-top: 1.5rem; font-size: .85rem; }
+
+  /* Nosotros: los 3 números en una fila */
+  .about-stats { grid-template-columns: repeat(3, 1fr); gap: .75rem; text-align: center; }
+  .about-stats .stat p { font-size: .62rem; letter-spacing: .08em; }
+
+  /* Visitanos: botones uno abajo del otro */
+  .visit-botones { flex-direction: column; }
+  .visit-botones .btn-primary, .visit-botones .btn-secondary { width: 100%; flex: none; text-align: center; justify-content: center; }
+  .mapa-wrap { min-height: 300px; }
+
+  /* Pie: Categorías y Ayuda lado a lado */
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem 1.25rem; }
+  .footer-brand, .footer-grid > .footer-col:last-child { grid-column: 1 / -1; }
+  .footer-bottom { flex-direction: column; gap: .4rem; text-align: center; }
+
+  /* Ventanas (producto, checkout, cuenta) de abajo hacia arriba y sin cortarse */
+  .modal-overlay { padding: 0; }
+  .modal { max-height: 94vh; max-height: 94dvh; padding-bottom: env(safe-area-inset-bottom); }
+  .modal-header { padding-top: 1.25rem; padding-bottom: 1rem; }
+  .modal-header h3 { font-size: 1.4rem; }
+  .modal-body { padding-top: 1.25rem; padding-bottom: 1.5rem; }
+
+  /* Detalle de producto: botón "Agregar" bien visible */
+  .pd-acciones { flex-wrap: wrap; }
+  .pd-acciones .btn-form-submit { min-width: 0; }
+  .talle-btn { min-width: 44px; min-height: 44px; }
+
+  /* Carrito a pantalla completa */
+  .cart-sidebar { width: 100vw; }
+
+  /* Mensajitos de abajo: a lo ancho, que se lean en una o dos líneas */
+  .toast-container { left: 1rem; right: 1rem; bottom: 1rem; transform: none; }
+  .toast { width: 100%; justify-content: center; text-align: center; border-radius: 14px; padding: .8rem 1.1rem; }
+
+  /* Botón de WhatsApp un poco más adentro */
+  .wa-fab { right: 1rem; bottom: max(1rem, env(safe-area-inset-bottom)); width: 50px; height: 50px; }
+
+  /* Lista de productos: filtros que no se aprieten */
+  .filtros-extra { gap: .6rem; }
+}
+@media (max-width: 380px) {
+  .container { padding: 0 .85rem; }
+  .productos-grid, .productos-grid-lg { gap: .85rem .6rem; }
+  .card-body { padding: .75rem .7rem; }
+  .card-name { font-size: .98rem; }
+  .card-precio { font-size: 1.08rem; }
+  .cat-tile-info h3 { font-size: 1.2rem; }
+}
