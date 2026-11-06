@@ -114,7 +114,8 @@ function aplicarConfig() {
   $('nosotrosTexto').innerHTML = String(config.nosotrosTexto || '').split(/\n\s*\n/).map(p => `<p>${esc(p)}</p>`).join('');
   $('nosotrosFoto').innerHTML = imagenes.nosotros ? `<img class="about-img-main" src="${esc(imagenes.nosotros)}" alt="Nuestro local">` : '<div class="about-placeholder">ES</div>';
   const nVis = visibles().length;
-  if (nVis) $('statProductos').textContent = nVis > 200 ? '+200' : nVis;
+  $('statProductos').textContent = nVis > 200 ? '+200' : nVis;
+  $('statProductos').parentElement.classList.toggle('hidden', !nVis);
   $('statCategorias').textContent = cats().length;
 
   // Visitanos + mapa
