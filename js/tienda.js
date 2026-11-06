@@ -64,8 +64,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ── Textos, fotos y datos del local (todo editable desde el admin) ──
+// Colores que se pueden cambiar desde el panel (Mi página → Colores)
+const COLOR_VARS = { verde: '--verde-pastel', verdeClaro: '--verde-claro', dorado: '--dorado', crema: '--crema', pie: '--pie-bg', franja: '--franja-bg' };
+function aplicarColores() {
+  const c = config.colores || {}, r = document.documentElement.style;
+  Object.entries(COLOR_VARS).forEach(([k, v]) => { if (c[k]) r.setProperty(v, c[k]); else r.removeProperty(v); });
+}
+function aplicarSecciones() {
+  const s = config.secciones || {};
+  document.querySelectorAll('[data-seccion]').forEach(el => el.classList.toggle('sec-off', s[el.dataset.seccion] === false));
+}
+
 function aplicarConfig() {
   const $ = id => document.getElementById(id);
+  aplicarColores(); aplicarSecciones();
   const bar = $('promoBar');
   bar.textContent = config.bannerTexto || '';
   bar.classList.toggle('hidden', !config.bannerTexto);
@@ -74,6 +86,10 @@ function aplicarConfig() {
   document.querySelectorAll('.js-wa-link').forEach(a => { if (wa) { a.href = wa; a.classList.remove('hidden-link'); } else { a.removeAttribute('href'); a.classList.add('hidden-link'); } });
   $('waFab').classList.toggle('hidden', !wa);
   document.querySelectorAll('.js-ig-link').forEach(a => { a.classList.toggle('hidden', !config.instagram); if (config.instagram) a.href = 'https://instagram.com/' + config.instagram.replace('@', ''); });
+  const tt = (config.tiktok || '').replace(/^@/, '');
+  document.querySelectorAll('.js-tt-link').forEach(a => { a.classList.toggle('hidden', !tt); if (tt) a.href = 'https://www.tiktok.com/@' + tt; });
+  const hayRedes = !!(tt || config.instagram);
+  const banda = document.getElementById('redesBanda'); if (banda) banda.classList.toggle('hidden', !hayRedes);
   document.querySelectorAll('.js-fb-link').forEach(a => { a.classList.toggle('hidden', !config.facebook); if (config.facebook) a.href = config.facebook; });
   document.querySelectorAll('.js-ubicacion').forEach(s => s.textContent = config.ubicacion || '');
 
@@ -127,18 +143,39 @@ function renderMenus() {
     ...(visibles().some(enOferta) ? [{ href: '#/ofertas', label: 'Ofertas', id: 'ofertas', cls: 'nav-oferta' }] : []),
     { href: '#/visitanos', label: 'Visitanos', id: 'visitanos' }
   ];
-  // En la barra entran hasta 5 categorías; el resto va en "Más ▾"
-  const MAX = 5, lista = cats();
-  const a = l => `<a href="${l.href}" class="${l.cls || ''} ${l.id === activo ? 'activo' : ''}">${esc(l.label)}</a>`;
-  const directas = lista.slice(0, lista.length > MAX + 1 ? MAX : MAX + 1);
-  const resto = lista.slice(directas.length);
-  document.getElementById('mainNav').innerHTML = a(links[0]) + directas.map(c => a({ href: '#/c/' + c.key, label: c.label, id: c.key })).join('') +
-    (resto.length ? `<div class="nav-mas ${resto.some(c => c.key === activo) ? 'activo' : ''}"><button type="button">Más ▾</button><div class="nav-mas-menu">${resto.map(c => a({ href: '#/c/' + c.key, label: (c.icon ? c.icon + ' ' : '') + c.label, id: c.key })).join('')}<a href="#/todo">✦ Ver todo</a></div></div>` : '') +
-    links.slice(1 + lista.length).map(a).join('');
+  navLinks = links; navActivo = activo;
+  ajustarNav();
   document.getElementById('mobileMenu').innerHTML = links.map(l => `<a href="${l.href}" onclick="toggleMenu()" class="${l.id === activo ? 'activo' : ''}">${esc(l.label)}</a>`).join('') +
     `<a href="#/favoritos" onclick="toggleMenu()">♡ Favoritos</a><a href="#" onclick="toggleMenu();abrirCuenta();return false">Mi cuenta</a>`;
   document.getElementById('footerCats').innerHTML = cats().map(c => `<li><a href="#/c/${c.key}">${esc(c.label)}</a></li>`).join('') + '<li><a href="#/todo">Ver todo</a></li>';
 }
+
+// Dibuja la barra con "max" categorías a la vista; el resto va en "Más ▾"
+let navLinks = [], navActivo = '';
+function dibujarNav(max) {
+  const lista = cats(), activo = navActivo, links = navLinks;
+  const a = l => `<a href="${l.href}" class="${l.cls || ''} ${l.id === activo ? 'activo' : ''}">${esc(l.label)}</a>`;
+  const directas = lista.length > max ? lista.slice(0, max) : lista;
+  const resto = lista.slice(directas.length);
+  document.getElementById('mainNav').innerHTML = a(links[0]) + directas.map(c => a({ href: '#/c/' + c.key, label: c.label, id: c.key })).join('') +
+    (resto.length ? `<div class="nav-mas ${resto.some(c => c.key === activo) ? 'activo' : ''}"><button type="button">${directas.length ? 'Más' : 'Categorías'} ▾</button><div class="nav-mas-menu">${resto.map(c => a({ href: '#/c/' + c.key, label: (c.icon ? c.icon + ' ' : '') + c.label, id: c.key })).join('')}<a href="#/todo">✦ Ver todo</a></div></div>` : '') +
+    links.slice(1 + lista.length).map(a).join('');
+}
+// Achica la barra hasta que entre en la pantalla (sirve con cualquier zoom o tamaño de letra)
+function ajustarNav() {
+  const header = document.querySelector('header'), inner = document.querySelector('.header-inner');
+  if (!header || !inner || !navLinks.length) return;
+  header.classList.remove('nav-compacta');
+  const n = cats().length;
+  for (let max = Math.min(n, 6); max >= 0; max--) {
+    dibujarNav(max);
+    if (getComputedStyle(document.getElementById('mainNav')).display === 'none') return;
+    if (inner.scrollWidth <= inner.clientWidth + 1) return;
+  }
+  header.classList.add('nav-compacta');
+}
+let _navT; window.addEventListener('resize', () => { clearTimeout(_navT); _navT = setTimeout(ajustarNav, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ajustarNav());
 
 // Saca del carrito productos que ya no existen y ajusta cantidades al stock
 function limpiarCarrito() {
@@ -609,7 +646,26 @@ async function cuentaTab(tab) {
 }
 
 // ── Checkout ────────────────────────────────────────────────────
-let coEntrega = 'envio', coPago = 'mp';
+let coEntrega = 'envio', coPago = 'mp', coCupon = null;
+
+async function aplicarCupon() {
+  const inp = document.getElementById('coCuponInput'); const cod = inp.value.trim().toUpperCase();
+  if (!cod) return;
+  try {
+    const cup = await DB.cupon(cod);
+    const r = ES.calcularCupon(cup, totales().subtotal);
+    if (r.error) ES.toast(r.error, 'error');
+    else { coCupon = cup; inp.value = ''; ES.toast('¡Cupón aplicado! 🎉', 'success'); }
+  } catch (e) { ES.toast('No pudimos revisar el cupón. Probá de nuevo.', 'error'); }
+  renderCheckout();
+}
+function quitarCupon() { coCupon = null; renderCheckout(); }
+function descuentoActual(subtotal) {
+  if (!coCupon) return 0;
+  const r = ES.calcularCupon(coCupon, subtotal);
+  if (r.error) { coCupon = null; return 0; }
+  return r.descuento;
+}
 
 function irAlCheckout() {
   if (!carrito.length) return;
@@ -645,9 +701,15 @@ function renderCheckout() {
     const p = prodPorId(it.pid); if (!p) return '';
     return `<div class="co-item"><div class="co-item-img">${imgHtml(p)}<span>${it.cant}</span></div><div><b>${esc(p.nombre)}</b><small>${it.color ? esc(it.color) + ' · ' : ''}${esc(it.talle)}</small></div><span>${$p(p.precio * it.cant)}</span></div>`;
   }).join('');
+  const desc = descuentoActual(subtotal);
   document.getElementById('coSubtotal').textContent = $p(subtotal);
+  document.getElementById('coDescLinea').classList.toggle('hidden', !desc);
+  document.getElementById('coDesc').textContent = '− ' + $p(desc);
+  const ok = document.getElementById('coCuponOk');
+  ok.classList.toggle('hidden', !coCupon);
+  if (coCupon) ok.innerHTML = `🏷️ Cupón <b>${esc(coCupon.codigo)}</b> (${coCupon.tipo === 'monto' ? $p(coCupon.valor) : coCupon.valor + '%'} off) <button type="button" class="link-btn" onclick="quitarCupon()">Quitar</button>`;
   document.getElementById('coEnvio').textContent = coEntrega === 'envio' ? (envio ? $p(envio) : 'Gratis') : 'Gratis';
-  document.getElementById('coTotal').textContent = $p(subtotal + envio);
+  document.getElementById('coTotal').textContent = $p(subtotal - desc + envio);
   document.getElementById('coSubmit').textContent = coPago === 'mp' ? 'Ir a pagar con Mercado Pago' : 'Confirmar pedido';
   document.querySelector('.co-seguro').classList.toggle('hidden', coPago !== 'mp');
 }
@@ -672,6 +734,7 @@ async function confirmarCompra(ev) {
     }
     const { subtotal } = totales();
     const envio = costoEnvio(subtotal, coEntrega);
+    const descuento = descuentoActual(subtotal);
     const pedido = {
       uid: usuario.uid,
       email: usuario.email || v('coEmail'),
@@ -680,12 +743,12 @@ async function confirmarCompra(ev) {
         ? { tipo: 'envio', direccion: v('coCalle'), ciudad: v('coCiudad'), cp: v('coCP'), notas: v('coNotas') }
         : { tipo: 'retiro', notas: v('coNotas') },
       items: carrito.map(it => { const p = prodPorId(it.pid); return { pid: p.id, nombre: p.nombre, precio: p.precio, color: it.color || null, talle: it.talle, cant: it.cant }; }),
-      subtotal, envio, total: subtotal + envio,
+      subtotal, envio, descuento, cupon: descuento ? coCupon.codigo : null, total: subtotal - descuento + envio,
       metodoPago: coPago,
       estado: 'pendiente'
     };
     const id = await DB.crearPedido(pedido);
-    carrito = []; guardarCarrito();
+    carrito = []; guardarCarrito(); coCupon = null;
     cerrar('modalCheckout');
     if (coPago === 'mp') await pagarPedido(id);
     else mostrarConfirmacionManual(id, pedido);
@@ -725,7 +788,7 @@ async function simularPago(id) {
 
 function mensajeWhatsApp(id, pd) {
   const lineas = pd.items.map(it => `• ${it.cant}x ${it.nombre} (${it.color ? it.color + ', ' : ''}${it.talle}) ${$p(it.precio * it.cant)}`).join('\n');
-  return `¡Hola! Hice el pedido #${id.slice(-6).toUpperCase()} en Estilo Select:\n${lineas}\nTotal: ${$p(pd.total)}\nEntrega: ${pd.entrega.tipo === 'envio' ? pd.entrega.direccion + ', ' + pd.entrega.ciudad : 'Retiro en el local'}\nNombre: ${pd.cliente.nombre}`;
+  return `¡Hola! Hice el pedido #${id.slice(-6).toUpperCase()} en Estilo Select:\n${lineas}${pd.descuento ? `\nCupón ${pd.cupon}: -${$p(pd.descuento)}` : ''}\nTotal: ${$p(pd.total)}\nEntrega: ${pd.entrega.tipo === 'envio' ? pd.entrega.direccion + ', ' + pd.entrega.ciudad : 'Retiro en el local'}\nNombre: ${pd.cliente.nombre}`;
 }
 
 function mostrarConfirmacionManual(id, pd) {

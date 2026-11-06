@@ -1471,3 +1471,55 @@ nav.main-nav .nav-mas-menu a { padding: .65rem .9rem; border-radius: 8px; }
 nav.main-nav .nav-mas-menu a::after { display: none; }
 nav.main-nav .nav-mas-menu a:hover { background: var(--crema); }
 .header-actions .btn-admin { padding: .45rem .8rem; white-space: nowrap; }
+
+/* ============================================================
+   v4 — PIE PASTEL, REDES, OJITO, CUPONES, BARRA QUE SE ACOMODA
+   ============================================================ */
+:root { --pie-bg: #dcebe4; --franja-bg: var(--texto); }
+
+/* Secciones apagadas desde el panel */
+.sec-off { display: none !important; }
+
+/* Barra de arriba: se acomoda sola a cualquier tamaño de pantalla o zoom */
+nav.main-nav { flex-shrink: 0; }
+.header-actions, .logo-wrap { flex-shrink: 0; }
+header.nav-compacta nav.main-nav { display: none; }
+header.nav-compacta .hamburger { display: flex; }
+.promo-bar { background: var(--franja-bg); }
+
+/* Pie de página en tonos pastel (antes marrón oscuro) */
+footer { background: linear-gradient(170deg, var(--pie-bg) 0%, var(--verde-pastel) 140%); color: var(--texto); border-top: 1px solid rgba(200,164,90,.25); }
+.footer-brand .logo-text-footer { color: var(--dorado-oscuro); }
+.footer-brand p, .footer-txt { color: var(--texto-suave); }
+.footer-col h4 { color: var(--dorado-oscuro); }
+.footer-col a { color: var(--texto-suave); }
+.footer-col a:hover { color: var(--dorado-oscuro); }
+.footer-bottom { border-top-color: rgba(58,50,40,.1); color: var(--texto-suave); }
+footer .social-link { color: var(--dorado-oscuro); border-color: rgba(139,107,20,.3); background: rgba(255,255,255,.55); }
+footer .social-link:hover { color: var(--blanco); background: var(--dorado); border-color: var(--dorado); }
+
+/* Banda de redes (TikTok / Instagram) */
+.redes-banda { background: linear-gradient(120deg, var(--crema) 0%, var(--verde-claro) 100%); padding: 4.5rem 0; border-top: 1px solid rgba(200,164,90,.18); border-bottom: 1px solid rgba(200,164,90,.18); }
+.redes-inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+.redes-titulo { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.1; margin: .5rem 0 .6rem; }
+.redes-titulo em { color: var(--dorado); }
+.redes-botones { display: flex; gap: 1rem; flex-wrap: wrap; }
+.redes-btn { display: inline-flex; align-items: center; gap: .65rem; padding: 1rem 1.8rem; border-radius: 50px; font-weight: 600; letter-spacing: .06em; font-size: .95rem; transition: var(--transicion); box-shadow: var(--sombra); }
+.redes-btn:hover { transform: translateY(-3px); box-shadow: var(--sombra-hover); }
+.redes-tt { background: #1f1b17; color: #fff; }
+.redes-ig { background: linear-gradient(45deg, #f7c16b, #e1306c 55%, #a35bd8); color: #fff; }
+@media (max-width: 640px) { .redes-banda { padding: 3rem 0; } .redes-btn { flex: 1; justify-content: center; } }
+
+/* Ojito de contraseña */
+.pass-wrap { position: relative; }
+.pass-wrap .form-input { padding-right: 3rem; width: 100%; }
+.pass-ojo { position: absolute; right: .5rem; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--texto-suave); border-radius: 8px; background: none; border: 0; cursor: pointer; }
+.pass-ojo:hover { color: var(--dorado-oscuro); background: var(--crema-oscura); }
+
+/* Cupón en el checkout */
+.co-cupon { display: flex; gap: .5rem; margin: 1rem 0 .5rem; }
+.co-cupon .form-input { flex: 1; text-transform: uppercase; }
+.co-cupon-ok { background: var(--verde-claro); border-radius: 10px; padding: .6rem .8rem; font-size: .85rem; margin-bottom: .5rem; }
+.co-cupon-ok .link-btn { margin-left: .4rem; font-size: .8rem; }
+.co-desc span:last-child { color: #2f8a5b; font-weight: 600; }
+.redes-tag { font-family: 'Great Vibes', cursive; color: var(--dorado); font-size: 1.9rem; line-height: 1; }

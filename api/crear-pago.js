@@ -1,7 +1,7 @@
 // POST /api/crear-pago  { pedidoId }
 // Recalcula el pedido con los precios reales, crea el pago en Mercado Pago
 // y devuelve el link para que la clienta pague.
-const { admin, db, configTienda, claveStock } = require('./_firebase');
+const { admin, db, configTienda, claveStock, cuponPorCodigo, calcularCupon } = require('./_firebase');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
@@ -41,17 +41,30 @@ module.exports = async (req, res) => {
     let envio = 0;
     if (pedido.entrega && pedido.entrega.tipo === 'envio')
       envio = (cfg.envioGratisDesde && subtotal >= cfg.envioGratisDesde) ? 0 : Number(cfg.costoEnvio) || 0;
-    const total = subtotal + envio;
+    let descuento = 0, cupon = null;
+    if (pedido.cupon) {
+      const cup = await cuponPorCodigo(pedido.cupon);
+      const r0 = calcularCupon(cup, subtotal);
+      if (r0.error) return res.status(400).json({ error: r0.error });
+      descuento = r0.descuento; cupon = cup.codigo;
+    }
+    const total = subtotal - descuento + envio;
 
     // 3) Crear la preferencia de pago en Mercado Pago
     const site = (process.env.SITE_URL || `https://${req.headers.host}`).replace(/\/$/, '');
-    const mpItems = items.map(i => ({
+    let mpItems = items.map(i => ({
       id: i.pid,
       title: `${i.nombre}${i.color ? ' - ' + i.color : ''} - Talle ${i.talle}`.slice(0, 250),
       quantity: i.cant,
       unit_price: i.precio,
       currency_id: 'ARS'
     }));
+    // Mercado Pago no acepta precios negativos: con cupón va una sola línea con el total ya descontado
+    if (descuento) mpItems = [{
+      id: 'pedido',
+      title: `Compra en Estilo Select (${items.reduce((s, i) => s + i.cant, 0)} prendas, cupón ${cupon})`.slice(0, 250),
+      quantity: 1, unit_price: subtotal - descuento, currency_id: 'ARS'
+    }];
     if (envio) mpItems.push({ id: 'envio', title: 'Envío a domicilio', quantity: 1, unit_price: envio, currency_id: 'ARS' });
 
     const pref = {
@@ -80,7 +93,7 @@ module.exports = async (req, res) => {
       return res.status(502).json({ error: 'Mercado Pago no respondió bien. Probá de nuevo en un momento.' });
     }
 
-    await ref.update({ items, subtotal, envio, total, preferenciaId: data.id, actualizado: admin.firestore.FieldValue.serverTimestamp() });
+    await ref.update({ items, subtotal, envio, descuento, cupon, total, preferenciaId: data.id, actualizado: admin.firestore.FieldValue.serverTimestamp() });
     return res.status(200).json({ url: data.init_point });
   } catch (e) {
     console.error(e);

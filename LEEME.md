@@ -11,7 +11,11 @@ La misma página de siempre (verde pastel, dorado y crema), ahora como tienda co
 - **Panel admin** (`admin.html`), pensado para usarlo sin saber de computación:
   - **Productos:** "Agregar producto" en 6 pasos con botones: fotos, nombre y precio, colores (se tocan), talles (se tocan), stock (un solo número o por color y talle) y descripción.
   - **Mi página:** cambiar las fotos y textos de la portada, las categorías (agregar, sacar, ordenar, foto y emoji), dirección, horarios, mapa, "Nosotros", WhatsApp e Instagram.
-  - **Pedidos** con cambio de estado, y **Envíos y pagos** (costo de envío, envío gratis, cuotas, alias).
+  - **Pedidos** con cambio de estado y botón para descargarlos a Excel. **Envíos y pagos** (costo de envío, envío gratis, cuotas, alias).
+  - **Clientas:** lista armada sola con los pedidos (cuánto compró cada una, WhatsApp, descarga a Excel).
+  - **Cupones:** códigos de descuento en % o en $, con compra mínima y vencimiento. El servidor los vuelve a revisar antes de cobrar.
+  - **Edición rápida de productos:** tabla para cambiar precios, ocultar o marcar como nuevo, y subir o bajar precios de golpe por categoría.
+  - **Mi página → Qué se muestra / Colores:** prender o apagar secciones del inicio y cambiar los colores (con botón para volver a los originales).
 - **Servidor** (`api/`): crea el pago en Mercado Pago con los precios reales de la base y, cuando Mercado Pago confirma, marca el pedido como pagado y descuenta el stock.
 
 ## Probarla ya (modo demo)
@@ -24,7 +28,7 @@ Abrí `index.html` con doble clic. Mientras `js/config.js` no tenga los datos de
 1. Entrá a https://console.firebase.google.com y creá un proyecto, por ejemplo `estilo-select`.
 2. **Authentication → Comenzar →** activá **Correo electrónico/contraseña** y **Google**.
 3. **Firestore Database → Crear base de datos** (ubicación `southamerica-east1`, modo producción).
-4. **Firestore → Reglas:** pegá todo el contenido de `firestore.rules` y tocá **Publicar**. (Si ya las habías pegado antes, pegalas de nuevo: ahora incluyen las fotos de la página.)
+4. **Firestore → Reglas:** pegá todo el contenido de `firestore.rules` y tocá **Publicar**. (Cada vez que se actualiza `firestore.rules`, pegalas de nuevo. La última versión agrega los **cupones**.)
 5. **Configuración del proyecto → Tus apps → Web (</>)**. Copiá los datos de `firebaseConfig` y pegalos en `js/config.js`.
 6. **Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada.** Se descarga un `.json`. **Ese archivo es secreto:** no lo subas a GitHub ni se lo mandes a nadie. Lo vas a pegar en Vercel (paso 3).
 
@@ -71,4 +75,4 @@ Con el token de prueba hacé una compra y pagá con una tarjeta de prueba de Mer
 
 **Seguridad:** el navegador nunca puede marcar un pedido como pagado ni cambiar precios ni stock. Eso lo hace solo el servidor después de consultar a Mercado Pago. En pedidos por transferencia, revisá el comprobante antes de despachar.
 
-**Al subir cambios:** sumale 1 al `?v=2` de los `<link>` y `<script>` en `index.html` y `admin.html`, así los navegadores bajan la versión nueva.
+**Al subir cambios de código:** sumale 1 al `?v=3` de los `<link>` y `<script>` en `index.html` y `admin.html`, así los navegadores bajan la versión nueva.
